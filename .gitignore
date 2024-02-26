@@ -6,6 +6,20 @@ __pycache__/
 # C extensions
 *.so
 
+# CSV
+*.csv
+
+# images
+*.jpg
+*.JPG
+*.png
+*.PNG
+*.jpeg
+*.JPEG
+
+models
+*.keras
+
 # Distribution / packaging
 .Python
 build/
