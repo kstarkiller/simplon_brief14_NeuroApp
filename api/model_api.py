@@ -29,7 +29,7 @@ async def predict(file: UploadFile = File(...)):
 
     # Normalize the image
     image_ready = normalize_image(decoded_image, (224, 224))
-    # Reshape and convert the image to a list of images (batch of 1)
+    # Convert the image to a list of images (batch of 1)
     image_ready = np.array(image_ready).reshape(1, 224, 224, 3)
 
     # Make a prediction
