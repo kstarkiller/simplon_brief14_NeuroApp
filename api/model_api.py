@@ -3,10 +3,9 @@ from fastapi.responses import JSONResponse
 import numpy as np
 import mlflow
 import mlflow.keras
-from PIL import Image
-import io
 import cv2
-
+import sys
+sys.path.append('../')
 from functions.normalize_images import normalize_image
 
 # Load the model
