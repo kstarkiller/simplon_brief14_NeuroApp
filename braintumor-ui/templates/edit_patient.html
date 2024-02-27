@@ -1,0 +1,129 @@
+<!-- edit_patient.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Patient</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles.css') }}">
+</head>
+<body>
+
+<h1>Edit Patient</h1>
+
+<form id="editPatientForm">
+    <!-- Ajouter des champs pour éditer les informations du patient -->
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required value="{{ patient.name }}">
+    <br>
+
+    <label for="age">Age:</label>
+    <input type="number" id="age" name="age" required value="{{ patient.age }}">
+    <br>
+
+    <label for="gender">Gender:</label>
+    <select id="gender" name="gender" required>
+        <option value="male" {{ "selected" if patient.gender == "male" else "" }}>Male</option>
+        <option value="female" {{ "selected" if patient.gender == "female" else "" }}>Female</option>
+    </select>
+    <br>
+
+    <label for="Scanner">Scanner:</label>
+    <p id="scannerName">Scanner actuel :{{ patient.scanner_name }}</p>
+    <button type="button" id="changeScannerBtn">Change Scanner</button>
+    <input type="file" id="scanner" name="scanner" style="display: none;">
+    <br>
+
+    <!-- Ajouter un champ caché pour stocker l'ID du patient -->
+    <input type="hidden" id="patientId" name="patientId" value="{{ patient_id }}">
+    <br>
+
+    <!-- Ajouter un bouton pour soumettre le formulaire -->
+    <button type="button" id="submitBtn">Submit</button>
+</form>
+
+<script>
+    // Stocker les valeurs initiales
+    const initialName = document.getElementById('name').value;
+    const initialAge = document.getElementById('age').value;
+    const initialGender = document.getElementById('gender').value;
+    const initialScanner = document.getElementById('scanner').files[0];
+    const scannerName = document.getElementById('scannerName').textContent;
+    const changeScannerBtn = document.getElementById('changeScannerBtn');
+    const scannerInput = document.getElementById('scanner');
+
+    // Préremplir les champs du formulaire avec les valeurs initiales
+    document.getElementById('name').value = initialName;
+    document.getElementById('age').value = initialAge;
+    document.getElementById('gender').value = initialGender;
+
+    // Gérer le bouton de changement de scanner
+    changeScannerBtn.addEventListener('click', () => {
+        scannerInput.style.display = 'block';
+    });
+
+    const submitButton = document.getElementById('submitBtn');
+    submitButton.addEventListener('click', () => {
+        // Récupérer les valeurs du formulaire
+        const name = document.getElementById('name').value;
+        const age = document.getElementById('age').value;
+        const gender = document.getElementById('gender').value;
+        const patientId = document.getElementById('patientId').value;
+        const scanner = document.getElementById('scanner').files[0];
+
+        // Construire l'objet avec les données du formulaire
+        let formData = {
+            name: name ? name : initialName,
+            age: age ? age : initialAge,
+            gender: gender ? gender : initialGender,
+        };
+
+        // Nouvelle promesse pour lire le fichier scanner
+        if (scanner) {
+            const readFile = new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(scanner);
+            });
+
+            readFile.then(base64String => {
+                formData.scanner_name = scanner.name;
+                formData.scanner_img = base64String.split(',')[1];
+
+                // Effectuer une requête vers l'endpoint de modification du patient
+                fetch(`/edit_patient/${patientId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Rediriger vers la vue des patients après l'édition
+                    window.location.href = '/view_patients';
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        } else {
+            // Effectuer une requête vers l'endpoint de modification du patient
+            fetch(`/edit_patient/${patientId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Rediriger vers la vue des patients après l'édition
+                window.location.href = '/view_patients';
+            })
+            .catch(error => console.error('Error:', error));
+        };
+    });
+</script>
+
+</body>
+</html>

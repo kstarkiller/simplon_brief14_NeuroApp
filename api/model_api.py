@@ -14,8 +14,21 @@ model = mlflow.pyfunc.load_model('runs:/cd2378db4d16452a831d248eea8811a7/models'
 
 app = FastAPI()
 
+app.description = "Neuroguard App API for image classification"
+
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
+    """
+    Predicts the label and confidence of an uploaded image.
+
+    Parameters:
+    - file: UploadFile \n
+        The binary image file to be classified.
+
+    Returns:
+    - dict: \n
+        A dictionary containing the predicted label and confidence.
+    """
     # Check if the file is an image
     if file is None:
         return JSONResponse(status_code=400, content={"message": "No file uploaded."})

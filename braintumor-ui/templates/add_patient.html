@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Patient</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles.css') }}">
+</head>
+<body>
+
+    <h1>Add Patient</h1>
+
+    <form id="patientForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name">
+
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age">
+
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+
+        <label for="Scanner">Scanner:</label>
+        <input type="file" id="scanner" name="scanner">
+
+        <!-- Add other necessary fields based on the PatientModel -->
+
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+
+    <script>
+        async function submitForm() {
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            const scanner = document.getElementById('scanner').files[0];
+            
+            let base64String;
+            if (scanner) {
+                const readFile = new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(scanner);
+                });
+
+                base64String = await readFile;
+            }
+            
+            const patientData = {
+                name: name,
+                age: age,
+                gender: gender
+            };
+
+            if (base64String) {
+                patientData.scanner_name = scanner.name;
+                patientData.scanner_img = base64String.split(',')[1];
+            }
+            
+            const response = await fetch('/add_patient', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(patientData),
+            });
+
+            if (response.ok) {
+                const responseData = await response.json();
+                const redirectUrl = responseData.redirect_url;
+
+                window.location.href = redirectUrl;
+            } else {
+                console.error('Erreur lors de l\'ajout du patient');
+            }
+        }
+    </script>
+
+</body>
+</html>
