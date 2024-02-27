@@ -1,40 +1,95 @@
-<!-- view_patients.html -->
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>View Patients</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles.css') }}">
-</head>
-<body>
-    <h1>View Patients</h1>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', path='styles.css') }}"
+    />
+  </head>
+  <body>
+    <style></style>
+    <nav>
+      <div class="NavContainer">
+        <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
+
+        <div class="LinkContainer">
+          <a href="/add_patient">Add New Patient</a>
+          <a href="/docs#">doc</a>
+          <div class="searchbarContainer">
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Enter Patient name"
+            />
+            <button id="search-button" class="search-button">
+              <img src="../static/src/search_icon.svg" class="button-image" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
 
     <a href="{{ url_for('add_patient') }}">Add Patient</a>
 
     <table border="1">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for patient in patients %}
-                <tr>
-                    <td>{{ patient.name }}</td>
-                    <td>{{ patient.age }}</td>
-                    <td>{{ patient.gender }}</td>
-                    <td>
-                        <a href="{{ url_for('edit_patient', patient_id=patient.id) }}">Edit</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
+      <thead>
+        <th>View Patients</th>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for patient in patients %}
+        <tr>
+          <td>{{ patient.name }}</td>
+          <td>{{ patient.age }}</td>
+          <td>{{ patient.gender }}</td>
+          <td>
+            <a href="{{ url_for('edit_patient', patient_id=patient.id) }}"
+              >Edit</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-</body>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchButton = document.getElementById("search-button");
+        const searchInput = document.getElementById("search-input");
+
+        searchButton.addEventListener("click", function () {
+          const searchTerm = searchInput.value.trim();
+          if (!searchTerm) {
+            alert("Please enter a patient name or ID");
+            return;
+          }
+
+          let url = `/view_patients?`;
+          if (searchTerm.match(/^[a-f\d]{24}$/i)) {
+            url += `patient_id=${searchTerm}`;
+          } else {
+            url += `name=${encodeURIComponent(searchTerm)}`;
+          }
+
+          window.location.href = url;
+        });
+
+        searchInput.addEventListener("keyup", function (event) {
+          if (event.key === "Enter") {
+            searchButton.click();
+          }
+        });
+      });
+    </script>
+  </body>
 </html>

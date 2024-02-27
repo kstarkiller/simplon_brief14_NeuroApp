@@ -79,6 +79,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Instance du moteur de modèles Jinja2 pour la gestion des templates HTML
 templates = Jinja2Templates(directory="templates")
 
+# Route pour la page d'accueil
+@app.get("/", response_class=HTMLResponse)
+async def read_index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 # Route pour ajouter un patient
 @app.get("/add_patient", response_class=HTMLResponse)
@@ -124,6 +128,31 @@ async def edit_patient_post(patient_id: str, patient: PatientUpdateModel):
     db.patients.update_one({"_id": ObjectId(patient_id)}, {"$set": updated_fields})
 
     return RedirectResponse(url="/view_patients")
+
+
+@app.get("/search_patient", response_class=JSONResponse)
+async def search_patient(patient_id: Optional[str] = None, name: Optional[str] = None):
+    if not patient_id and not name:
+        raise HTTPException(status_code=400, detail="Must provide either patient ID or name for search")
+    
+    query = {}
+    if patient_id:
+        try:
+            query["_id"] = ObjectId(patient_id)
+        except:
+            raise HTTPException(status_code=400, detail="Invalid patient ID format")
+    elif name:
+        query["name"] = {"$regex": name, "$options": "i"}
+    
+    patients = list(db.patients.find(query))
+    
+    if patients:
+        for patient in patients:
+            patient["id"] = str(patient["_id"])
+            del patient["_id"]
+        return patients
+    else:
+        raise HTTPException(status_code=404, detail="Patient not found")
 
 if __name__ == '__main__':
     uvicorn.run(app, host="127.0.0.1", port=3000)
