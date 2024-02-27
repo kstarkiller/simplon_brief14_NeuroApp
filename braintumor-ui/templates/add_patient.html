@@ -24,8 +24,8 @@
             <option value="female">Female</option>
         </select>
 
-        <label for="Scanner">Scanner:</label>
-        <input type="file" id="scanner" name="scanner">
+        <button type="button" id="scannerBtn">Ajouter Scanner</button>
+        <input type="file" id="scanner" name="scanner" style="display: none;">
 
         <!-- Add other necessary fields based on the PatientModel -->
 
@@ -33,6 +33,13 @@
     </form>
 
     <script>
+        const scannerBtn = document.getElementById('scannerBtn');
+        const scannerInput = document.getElementById('scanner');
+
+            // Gérer le bouton de changement de scanner
+        scannerBtn.addEventListener('click', () => {
+            scannerInput.style.display = 'block';
+        });
         async function submitForm() {
             const name = document.getElementById('name').value;
             const age = document.getElementById('age').value;

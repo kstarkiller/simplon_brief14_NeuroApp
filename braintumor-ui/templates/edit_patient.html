@@ -28,13 +28,22 @@
     </select>
     <br>
 
+    {% if patient.scanner_img %}
     <p id="scannerName">Scanner actuel: {{ patient.scanner_name }}</p>
     <img src="data:image/png;base64,{{ patient.scanner_img }}" alt="Scanner" style="width: 100px; height: 100px;">
     <br>
     <br>
-    <button type="button" id="changeScannerBtn">Change Scanner</button>
+    <button type="button" id="scannerBtn">Change Scanner</button>
     <input type="file" id="scanner" name="scanner" style="display: none;">
     <br>
+    {% endif %}
+
+    {% if not patient.scanner_img %}
+    <br>
+    <button type="button" id="scannerBtn">Ajouter Scanner</button>
+    <input type="file" id="scanner" name="scanner" style="display: none;">
+    <br>
+    {% endif %}
 
     <!-- Ajouter un champ caché pour stocker l'ID du patient -->
     <input type="hidden" id="patientId" name="patientId" value="{{ patient_id }}">
@@ -51,7 +60,7 @@
     const initialGender = document.getElementById('gender').value;
     const initialScanner = document.getElementById('scanner').files[0];
     const scannerName = document.getElementById('scannerName').textContent;
-    const changeScannerBtn = document.getElementById('changeScannerBtn');
+    const scannerBtn = document.getElementById('scannerBtn');
     const scannerInput = document.getElementById('scanner');
 
     // Préremplir les champs du formulaire avec les valeurs initiales
@@ -59,8 +68,8 @@
     document.getElementById('age').value = initialAge;
     document.getElementById('gender').value = initialGender;
 
-    // Gérer le bouton de changement de scanner
-    changeScannerBtn.addEventListener('click', () => {
+    // Gérer le bouton de changement ou d'ajout de scanner
+    scannerBtn.addEventListener('click', () => {
         scannerInput.style.display = 'block';
     });
 

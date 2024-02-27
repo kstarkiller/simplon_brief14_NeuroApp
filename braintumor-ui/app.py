@@ -13,6 +13,7 @@ from bson import ObjectId
 from pydantic import BaseModel, Field
 from typing import Optional
 import base64
+import binascii
 
 app = FastAPI()
 
@@ -34,7 +35,7 @@ class PatientModel(BaseModel):
         if self.scanner_img is not None:
             try:
                 return base64.b64decode(self.scanner_img)
-            except base64.binascii.Error:
+            except binascii.Error:
                 return None
         return None
 
@@ -52,7 +53,7 @@ class PatientUpdateModel(BaseModel):
         if self.scanner_img is not None:
             try:
                 return base64.b64decode(self.scanner_img)
-            except base64.binascii.Error:
+            except binascii.Error:
                 return None
         return None
 
@@ -105,9 +106,13 @@ async def view_patients(request: Request):
 @app.get("/edit_patient/{patient_id}", response_class=HTMLResponse)
 async def edit_patient(request: Request, patient_id: str):
     # Récupérer les informations du patient pour affichage dans le formulaire
-    patient = PatientModel(**db.patients.find_one({"_id": ObjectId(patient_id)}))
-    return templates.TemplateResponse("edit_patient.html", {"request": request, "patient": patient,
-                                                            "patient_id": patient_id})
+    patient_data = db.patients.find_one({"_id": ObjectId(patient_id)})
+    if patient_data is not None:
+        patient = PatientModel(**{str(k): v for k, v in patient_data.items()})
+        return templates.TemplateResponse("edit_patient.html", {"request": request, "patient": patient,
+                                                                "patient_id": patient_id})
+    else:
+        return JSONResponse(content={"error": "Patient not found"})
 
 
 @app.post("/edit_patient/{patient_id}")
