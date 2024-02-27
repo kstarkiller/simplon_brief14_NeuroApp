@@ -4,8 +4,8 @@ import os
 import numpy as np
 
 url = 'http://127.0.0.1:8000/predict/'
-yes_path = '/home/kevin/simplon/briefs/b14_neuroguard_app/repo/data/raw/yes'
-no_path = '/home/kevin/simplon/briefs/b14_neuroguard_app/repo/data/raw/no'
+yes_path = 'data/raw/yes'
+no_path = 'data/raw/no'
 
 # List of images to test
 yes_images = [f"{yes_path}/{i}" for i in os.listdir(yes_path)]
