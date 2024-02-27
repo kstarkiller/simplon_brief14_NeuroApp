@@ -100,11 +100,19 @@ async def add_patient_post(patient: PatientModel):
 
 # Route pour visualiser tous les patients
 @app.get("/view_patients", response_class=HTMLResponse)
-async def view_patients(request: Request):
+async def view_patients(request: Request, name: Optional[str] = None, patient_id: Optional[str] = None):
     # Récupérer tous les patients depuis la base de données
-    patients = [PatientViewModel(id=str(patient['_id']), **patient) for patient in db.patients.find()]
+    query = {}
+    if name:
+        query["name"] = {"$regex": name, "$options": "i"}
+    if patient_id:
+        try:
+            query["_id"] = ObjectId(patient_id)
+        except:
+            raise HTTPException(status_code=400, detail="Invalid patient ID format")
+    
+    patients = [PatientViewModel(id=str(patient['_id']), **patient) for patient in db.patients.find(query)]
     return templates.TemplateResponse("view_patients.html", {"request": request, "patients": patients})
-
 
 # Route pour éditer un patient
 @app.get("/edit_patient/{patient_id}", response_class=HTMLResponse)
