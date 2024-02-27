@@ -28,8 +28,10 @@
     </select>
     <br>
 
-    <label for="Scanner">Scanner:</label>
-    <p id="scannerName">Scanner actuel :{{ patient.scanner_name }}</p>
+    <p id="scannerName">Scanner actuel: {{ patient.scanner_name }}</p>
+    <img src="data:image/png;base64,{{ patient.scanner_img }}" alt="Scanner" style="width: 100px; height: 100px;">
+    <br>
+    <br>
     <button type="button" id="changeScannerBtn">Change Scanner</button>
     <input type="file" id="scanner" name="scanner" style="display: none;">
     <br>
