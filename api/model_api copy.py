@@ -1,17 +1,15 @@
-from fastapi import FastAPI, HTTPException
-from pymongo import MongoClient
-from bson import ObjectId
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 import numpy as np
 import mlflow
+import mlflow.keras
 import cv2
+from pymongo import MongoClient
 import base64
-from bson import ObjectId
-from datetime import datetime
-
 
 app = FastAPI()
 
-# Load the ML model
+# Load the model
 mlflow.set_tracking_uri("http://localhost:5000")
 model = mlflow.pyfunc.load_model("runs:/271a79bb8656493ba59699901ab7c2aa/model")
 
@@ -51,63 +49,63 @@ def normalize_image(img, target_size):
 
     return normalized_image
 
+
 # Connect to MongoDB
 client = MongoClient("mongodb://localhost:27017/")
 db = client["braintumor"]
+predictions_collection = db["predictions"]
 
 @app.post("/predict/")
-async def predict(patient_id: str):
+async def predict(patient_id: str, scanner_img: str):
+    """
+    Predicts the label and confidence of an uploaded image and stores the prediction result in MongoDB.
 
-    # Retrieve patient data from MongoDB
-    patient_data = db.patients.find_one({"_id": ObjectId(patient_id)})
-    if patient_data is None:
-        raise HTTPException(status_code=404, detail="Patient not found.")
+    Parameters:
+    - patient_id: str \n
+        The ID of the patient.
+    - scanner_img: str \n
+        Base64 encoded image data.
 
-    # Retrieve scanner_img from patient data
-    scanner_img = patient_data.get("scanner_img")
+    Returns:
+    - dict: \n
+        A dictionary containing the predicted label and confidence.
+    """
     if scanner_img is None:
-        raise HTTPException(status_code=400, detail="No scanner image found for the patient.")
+        return JSONResponse(status_code=400, content={"message": "No file uploaded."})
 
-    # Decode the base64 encoded image data
+    # Read the image
+    image_data = await scanner_img.read()
+
+    # Decode the image data
     image_data = base64.b64decode(scanner_img)
-    print(image_data)
-
-    # Convert the bytes to an image
+    # convert the bytes to image
     image_data = np.frombuffer(image_data, np.uint8)
+    # decode the bytes to image
     decoded_image = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
 
     # Normalize the image
     image_ready = normalize_image(decoded_image, (224, 224))
-
     # Convert the image to a list of images (batch of 1)
     image_ready = np.array(image_ready).reshape(1, 224, 224, 3)
 
     # Make a prediction
     prediction = model.predict(image_ready)
-
     # Format the prediction
     pred_label = "yes" if prediction[0][0] > 0.5 else "no"
     confidence = float(prediction[0][0])
 
-    # Get the current date and time
-    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    # Update patient data with prediction result and date
-    db.patients.update_one(
-        {"_id": ObjectId(patient_id)},
-        {"$set": {
-                    "AI_predict": pred_label,
-                    "confidence": confidence,
-                    "prediction_date": current_date
-                }
-        }
-    )
+    # Store the prediction result in MongoDB
+    prediction_data = {
+        "patient_id": patient_id,
+        "label": pred_label,
+        "confidence": confidence,
+    }
+    predictions_collection.insert_one(prediction_data)
 
     # Return the prediction result
     return {
-        "AI_predict": pred_label,
+        "label": pred_label,
         "confidence": confidence,
-        "prediction_date": current_date
     }
 
 # Run the API with uvicorn

@@ -1,10 +1,11 @@
 import cv2
 import numpy as np
 
+
 def normalize_images(X, target_size):
     """
     Normalise les images en niveaux de gris, applique un filtre pour supprimer le bruit, détecte les contours pour trouver le crop optimal, et redimensionne les images à target_size.
-    
+
     Args:
     - X: np.array, liste d'images (ndarray)
     - target_size: tuple, taille cible des images (ex: (224, 224))
@@ -24,7 +25,9 @@ def normalize_images(X, target_size):
 
         # Détecter les contours pour trouver le crop optimal
         _, thresh = cv2.threshold(denoised_img, 30, 255, cv2.THRESH_BINARY)
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(
+            thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
 
         if contours:
             # Trouver le contour avec la plus grande aire
@@ -34,13 +37,17 @@ def normalize_images(X, target_size):
             x, y, w, h = cv2.boundingRect(max_contour)
 
             # Cropper l'image pour obtenir la région d'intérêt
-            cropped_img = img[y:y+h, x:x+w]
+            cropped_img = img[y : y + h, x : x + w]
 
             # Redimensionner à target_size (pour s'assurer que toutes les images ont la même taille)
-            normalized_images[i] = cv2.resize(cropped_img, target_size, interpolation=cv2.INTER_AREA)
+            normalized_images[i] = cv2.resize(
+                cropped_img, target_size, interpolation=cv2.INTER_AREA
+            )
         else:
             # Redimensionner à target_size si aucun contour n'est détecté
-            normalized_images[i] = cv2.resize(img, target_size, interpolation=cv2.INTER_AREA)
+            normalized_images[i] = cv2.resize(
+                img, target_size, interpolation=cv2.INTER_AREA
+            )
 
     return np.array(normalized_images)
 
@@ -78,10 +85,12 @@ def normalize_image(img, target_size):
         x, y, w, h = cv2.boundingRect(max_contour)
 
         # Cropper l'image pour obtenir la région d'intérêt
-        cropped_img = img[y:y+h, x:x+w]
+        cropped_img = img[y : y + h, x : x + w]
 
         # Redimensionner à target_size (pour s'assurer que toutes les images ont la même taille)
-        normalized_image = cv2.resize(cropped_img, target_size, interpolation=cv2.INTER_AREA)
+        normalized_image = cv2.resize(
+            cropped_img, target_size, interpolation=cv2.INTER_AREA
+        )
     else:
         # Redimensionner à target_size si aucun contour n'est détecté
         normalized_image = cv2.resize(img, target_size, interpolation=cv2.INTER_AREA)

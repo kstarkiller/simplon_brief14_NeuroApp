@@ -3,9 +3,9 @@ import cv2
 import os
 import numpy as np
 
-url = 'http://127.0.0.1:8000/predict/'
-yes_path = '/home/kevin/simplon/briefs/b14_neuroguard_app/repo/data/raw/yes'
-no_path = '/home/kevin/simplon/briefs/b14_neuroguard_app/repo/data/raw/no'
+url = "http://127.0.0.1:8000/predict/"
+yes_path = "/home/kevin/simplon/briefs/b14_neuroguard_app/repo/data/raw/yes"
+no_path = "/home/kevin/simplon/briefs/b14_neuroguard_app/repo/data/raw/no"
 
 # List of images to test
 yes_images = [f"{yes_path}/{i}" for i in os.listdir(yes_path)]
@@ -21,7 +21,7 @@ filename = np.random.choice(all_images)
 image = cv2.imread(filename)
 
 # Convert the image to bytes
-_, image_encoded = cv2.imencode('.jpg', image)
+_, image_encoded = cv2.imencode(".jpg", image)
 image_bytes = image_encoded.tobytes()
 
 # Send the image to the API
@@ -30,8 +30,14 @@ response = requests.post(url, files={"file": ("image.jpg", image_bytes)})
 # Print response managing errors
 if response.status_code == 200:
     if response.json().get("label") == "yes":
-        print(f'Présence de tumeur ? {response.json().get("label")} (Confidence : {response.json().get("confidence"):.2%})', f'\nFichier envoyé: {filename.split("/")[-1]}')
-    else :
-        print(f'Présence de tumeur ? {response.json().get("label")} (Confidence : {1/1-response.json().get("confidence"):.2%})', f'\nFichier envoyé: {filename.split("/")[-1]}')
+        print(
+            f'Présence de tumeur ? {response.json().get("label")} (Confidence : {response.json().get("confidence"):.2%})',
+            f'\nFichier envoyé: {filename.split("/")[-1]}',
+        )
+    else:
+        print(
+            f'Présence de tumeur ? {response.json().get("label")} (Confidence : {1/1-response.json().get("confidence"):.2%})',
+            f'\nFichier envoyé: {filename.split("/")[-1]}',
+        )
 else:
     print("Error:", response.status_code, response.text)
