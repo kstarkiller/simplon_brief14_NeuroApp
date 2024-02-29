@@ -15,6 +15,7 @@ app = FastAPI()
 mlflow.set_tracking_uri("http://localhost:5000")
 model = mlflow.pyfunc.load_model("runs:/271a79bb8656493ba59699901ab7c2aa/model")
 
+
 # Define function normalize :
 def normalize_image(img, target_size):
     # Convertir en niveaux de gris si ce n'est pas déjà le cas
@@ -51,9 +52,11 @@ def normalize_image(img, target_size):
 
     return normalized_image
 
+
 # Connect to MongoDB
 client = MongoClient("mongodb://localhost:27017/")
 db = client["braintumor"]
+
 
 @app.post("/predict/")
 async def predict(patient_id: str):
@@ -66,7 +69,9 @@ async def predict(patient_id: str):
     # Retrieve scanner_img from patient data
     scanner_img = patient_data.get("scanner_img")
     if scanner_img is None:
-        raise HTTPException(status_code=400, detail="No scanner image found for the patient.")
+        raise HTTPException(
+            status_code=400, detail="No scanner image found for the patient."
+        )
 
     # Decode the base64 encoded image data
     image_data = base64.b64decode(scanner_img)
@@ -95,20 +100,22 @@ async def predict(patient_id: str):
     # Update patient data with prediction result and date
     db.patients.update_one(
         {"_id": ObjectId(patient_id)},
-        {"$set": {
-                    "AI_predict": pred_label,
-                    "confidence": confidence,
-                    "prediction_date": current_date
-                }
-        }
+        {
+            "$set": {
+                "AI_predict": pred_label,
+                "confidence": confidence,
+                "prediction_date": current_date,
+            }
+        },
     )
 
     # Return the prediction result
     return {
         "AI_predict": pred_label,
         "confidence": confidence,
-        "prediction_date": current_date
+        "prediction_date": current_date,
     }
+
 
 # Run the API with uvicorn
 if __name__ == "__main__":
