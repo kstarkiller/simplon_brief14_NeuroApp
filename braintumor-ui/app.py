@@ -1,7 +1,7 @@
-# import sys
-# import os
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-# from hidden import MONGO_URI
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from hidden import MONGO_URI
 
 import uvicorn
 from fastapi import FastAPI, Request, Form, HTTPException
@@ -19,7 +19,7 @@ import requests
 app = FastAPI()
 
 # Connexion à la base de données MongoDB
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient(MONGO_URI)
 db = client["braintumor"]
 
 
@@ -67,9 +67,9 @@ class PatientViewModel(BaseModel):
     id: str
     scanner_img: Optional[str] = None
     scanner_name: Optional[str] = None
-    AI_predict: str
-    confidence: str
-    prediction_date: str
+    AI_predict: Optional[str] = None  # Make these fields optional
+    confidence: Optional[str] = None
+    prediction_date: Optional[str] = None
 
 
 # Modèle Pydantic pour les prédictions (à adapter selon vos besoins)
@@ -128,8 +128,7 @@ async def view_patients(
     name: Optional[str] = None,
     patient_id: Optional[str] = None,
     scanner_img: Optional[str] = None,
-    scanner_name: Optional[str] = None,
-):
+    scanner_name: Optional[str] = None):
     # Récupérer tous les patients depuis la base de données
     query = {}
     if name:
