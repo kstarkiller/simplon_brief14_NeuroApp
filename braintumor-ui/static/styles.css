@@ -1,5 +1,4 @@
 /* styles.css */
-
 body {
   font-family: Arial, sans-serif;
   margin: 20px;
@@ -77,8 +76,13 @@ nav > h2 {
   align-items: center;
 }
 
+td :any-link {
+  background-color: black;
+}
+
 :any-link {
   color: white;
+  background-color: black;
   text-decoration: none;
   padding: 10px;
   transition: 1s;

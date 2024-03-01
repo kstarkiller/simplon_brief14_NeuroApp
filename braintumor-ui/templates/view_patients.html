@@ -36,9 +36,11 @@
       </div>
     </nav>
 
-    <a href="{{ url_for('add_patient') }}">Add Patient</a>
-
     <table border="1">
+      <caption>
+        <a href="{{ url_for('add_patient') }}">Add Patient</a>
+        <hr style="margin: 15px; background-color: transparent; border: none" />
+      </caption>
       <thead>
         <th>View Patients</th>
         <tr>
@@ -66,7 +68,7 @@
           <td>
             <a href="{{ url_for('predict_patient', patient_id=patient.id) }}"
               >Predict</a
-              >
+            >
           </td>
           <td>
             <a href="{{ url_for('full_view_patient', patient_id=patient.id) }}"

@@ -1,114 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Add Patient</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', path='styles.css') }}"
+    />
+    <style>
+      input,
+      select {
+        margin: 10px 0px 10px 0px;
+      }
+    </style>
+  </head>
+  <body>
     <nav>
-        <div class="NavContainer">
-            <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
+      <div class="NavContainer">
+        <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
 
-            <div class="LinkContainer">
-            <a href="/">Home</a>
-            <a href="/add_patient">Add New Patient</a>
-            <a href="/view_patients">View all</a>
-            <a href="/docs#">doc</a>
-            <div class="searchbarContainer">
-                <input
-                id="search-input"
-                type="text"
-                placeholder="Enter Patient name"
-                />
-                <button id="search-button" class="search-button">
-                <img src="../static/src/search_icon.svg" class="button-image" />
-                </button>
-            </div>
-            </div>
+        <div class="LinkContainer">
+          <a href="/">Home</a>
+          <a href="/add_patient">Add New Patient</a>
+          <a href="/view_patients">View all</a>
+          <a href="/docs#">doc</a>
+          <div class="searchbarContainer">
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Enter Patient name"
+            />
+            <button id="search-button" class="search-button">
+              <img src="../static/src/search_icon.svg" class="button-image" />
+            </button>
+          </div>
         </div>
+      </div>
     </nav>
 
-    <h1>Add Patient</h1>
+    <form id="patientForm" style="margin-top: 100px">
+      <h1 style="text-align: center">Add Patient</h1>
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" />
 
-    <form id="patientForm">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name">
+      <label for="age">Age:</label>
+      <input type="number" id="age" name="age" />
 
-        <label for="age">Age:</label>
-        <input type="number" id="age" name="age">
+      <label for="gender">Gender:</label>
+      <select id="gender" name="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
 
-        <label for="gender">Gender:</label>
-        <select id="gender" name="gender">
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-        </select>
+      <button type="button" id="scannerBtn" style="margin-top: 8px">
+        Ajouter Scanner
+      </button>
+      <input type="file" id="scanner" name="scanner" style="display: none" />
 
-        <button type="button" id="scannerBtn">Ajouter Scanner</button>
-        <input type="file" id="scanner" name="scanner" style="display: none;">
+      <!-- Add other necessary fields based on the PatientModel -->
 
-        <!-- Add other necessary fields based on the PatientModel -->
-
-        <button type="button" onclick="submitForm()">Submit</button>
+      <button type="button" onclick="submitForm()">Submit</button>
     </form>
 
     <script>
-        const scannerBtn = document.getElementById('scannerBtn');
-        const scannerInput = document.getElementById('scanner');
+      const scannerBtn = document.getElementById("scannerBtn");
+      const scannerInput = document.getElementById("scanner");
 
-            // Gérer le bouton de changement de scanner
-        scannerBtn.addEventListener('click', () => {
-            scannerInput.style.display = 'block';
-        });
-        async function submitForm() {
-            const name = document.getElementById('name').value;
-            const age = document.getElementById('age').value;
-            const gender = document.getElementById('gender').value;
-            const scanner = document.getElementById('scanner').files[0];
-            
-            let base64String;
-            if (scanner) {
-                const readFile = new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(scanner);
-                });
+      // Gérer le bouton de changement de scanner
+      scannerBtn.addEventListener("click", () => {
+        scannerInput.style.display = "block";
+      });
+      async function submitForm() {
+        const name = document.getElementById("name").value;
+        const age = document.getElementById("age").value;
+        const gender = document.getElementById("gender").value;
+        const scanner = document.getElementById("scanner").files[0];
 
-                base64String = await readFile;
-            }
-            
-            const patientData = {
-                name: name,
-                age: age,
-                gender: gender
-            };
+        let base64String;
+        if (scanner) {
+          const readFile = new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(scanner);
+          });
 
-            if (base64String) {
-                patientData.scanner_name = scanner.name;
-                patientData.scanner_img = base64String.split(',')[1];
-            }
-            
-            const response = await fetch('/add_patient', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(patientData),
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-                const redirectUrl = responseData.redirect_url;
-
-                window.location.href = redirectUrl;
-            } else {
-                console.error('Erreur lors de l\'ajout du patient');
-            }
+          base64String = await readFile;
         }
-    </script>
 
-</body>
+        const patientData = {
+          name: name,
+          age: age,
+          gender: gender,
+        };
+
+        if (base64String) {
+          patientData.scanner_name = scanner.name;
+          patientData.scanner_img = base64String.split(",")[1];
+        }
+
+        const response = await fetch("/add_patient", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(patientData),
+        });
+
+        if (response.ok) {
+          const responseData = await response.json();
+          const redirectUrl = responseData.redirect_url;
+
+          window.location.href = redirectUrl;
+        } else {
+          console.error("Erreur lors de l'ajout du patient");
+        }
+      }
+    </script>
+  </body>
 </html>

@@ -1,51 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Full View Patient</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles.css') }}">
-</head>
-<body>
-    <nav>
-        <div class="NavContainer">
-            <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', path='styles.css') }}"
+    />
 
-            <div class="LinkContainer">
-                <a href="/">Home</a>
-                <a href="/add_patient">Add New Patient</a>
-                <a href="/view_patients">View all</a>
-                <a href="/docs#">doc</a>
-                <div class="searchbarContainer">
-                    <input id="search-input" type="text" placeholder="Enter Patient name">
-                    <button id="search-button" class="search-button">
-                        <img src="../static/src/search_icon.svg" class="button-image">
-                    </button>
-                </div>
-            </div>
+    <style></style>
+  </head>
+  <body>
+    <nav>
+      <div class="NavContainer">
+        <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
+
+        <div class="LinkContainer">
+          <a href="/">Home</a>
+          <a href="/add_patient">Add New Patient</a>
+          <a href="/view_patients">View all</a>
+          <a href="/docs#">doc</a>
+          <div class="searchbarContainer">
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Enter Patient name"
+            />
+            <button id="search-button" class="search-button">
+              <img src="../static/src/search_icon.svg" class="button-image" />
+            </button>
+          </div>
         </div>
+      </div>
     </nav>
 
-    <h1>Full View Patient</h1>
+    <table>
+      <caption>
+        <h1>Patient Information</h1>
+      </caption>
+      <tr>
+        <th>Attribute</th>
+        <th>Value</th>
+      </tr>
+      <tr>
+        <td>Name</td>
+        <td>{{ patient.name }}</td>
+      </tr>
+      <tr>
+        <td>Age</td>
+        <td>{{ patient.age }}</td>
+      </tr>
+      <tr>
+        <td>Gender</td>
+        <td>{{ patient.gender }}</td>
+      </tr>
+      <tr>
+        <td>Image Name</td>
+        <td>{{ patient.scanner_name }}</td>
+      </tr>
+      <tr>
+        <td>Scanner Image</td>
+        <td>
+          <img
+            src="data:image/png;base64,{{ patient.scanner_img }}"
+            alt="Scanner Image"
+          />
+        </td>
+      </tr>
+    </table>
 
-    <div>
-        <h2>Patient Information:</h2>
-        <p><strong>Name:</strong> {{ patient.name }}</p>
-        <p><strong>Age:</strong> {{ patient.age }}</p>
-        <p><strong>Gender:</strong> {{ patient.gender }}</p>
-        <p><strong>Image Name:</strong> {{ patient.scanner_name }}</p>
-        <img src="data:image/png;base64,{{ patient.scanner_img }}" alt="Scanner Image" style="width: 200px;">
-    </div>
-
-    <div>
-        <h2>Prediction Result:</h2>
-        {% if prediction_result %}
-            <p><strong>Label:</strong> {{ prediction_result.AI_label }}</p>
-            <p><strong>Confidence:</strong> {{ prediction_result.confidence }}</p>
-        {% else %}
-            <p>No prediction result available.</p>
-        {% endif %}
-    </div>
-
-</body>
+    <table>
+      <caption>
+        Prediction Result
+      </caption>
+      {% if prediction_result %}
+      <tr>
+        <th>Label</th>
+        <td>{{ prediction_result.AI_label }}</td>
+      </tr>
+      <tr>
+        <th>Confidence</th>
+        <td>{{ prediction_result.confidence }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="2">No prediction result available.</td>
+      </tr>
+      {% endif %}
+    </table>
+  </body>
 </html>
