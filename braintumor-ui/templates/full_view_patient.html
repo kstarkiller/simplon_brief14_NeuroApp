@@ -75,14 +75,23 @@
       <caption>
         Prediction Result
       </caption>
-      {% if prediction_result %}
+      {% if patient.AI_predict %}
       <tr>
         <th>Label</th>
-        <td>{{ prediction_result.AI_label }}</td>
+        <td>{{ patient.AI_predict }}</td>
       </tr>
       <tr>
         <th>Confidence</th>
-        <td>{{ prediction_result.confidence }}</td>
+        {% if patient.AI_predict == "no" %}
+        <td>{{ (1 - patient.confidence) * 100 }}%</td>
+        {% endif %}
+        {% if patient.AI_predict == "yes" %}
+        <td>{{ patient.confidence * 100 }}%</td>
+        {% endif %}
+      </tr>
+      <tr>
+        <th>Date</th>
+        <td>{{ patient.prediction_date }}</td>
       </tr>
       {% else %}
       <tr>
