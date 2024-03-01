@@ -10,7 +10,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from pymongo import MongoClient
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 import base64
 import binascii
