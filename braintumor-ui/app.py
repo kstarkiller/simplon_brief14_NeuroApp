@@ -100,8 +100,8 @@ def add_patient(request: Request):
 async def add_patient_post(patient: PatientModel):
     # Insérer le patient dans la base de données
     patient_data = patient.model_dump()
-    if patient_data.get('prediction'):
-        patient_data['prediction'] = patient_data['prediction'].dict()
+    if patient_data.get('scanner'):
+        patient_data['scanner'] = patient_data['scanner'].dict()
     db.patients.insert_one(patient_data)
     return JSONResponse(content={"redirect_url": "/view_patients"})
 
@@ -167,8 +167,8 @@ async def edit_patient_post(patient_id: str, patient: PatientUpdateModel):
     # Obtenir un dictionnaire des champs définis
     updated_fields = {k: v for k, v in patient.model_dump().items() if v is not None}
     if updated_fields.get('scanner'):
-        prediction_fields = updated_fields['scanner'].dict()
-        for key, value in prediction_fields.items():
+        scanner_fields = updated_fields['scanner'].dict()
+        for key, value in scanner_fields.items():
             updated_fields[f'scanner.{key}'] = value
         del updated_fields['scanner']
 

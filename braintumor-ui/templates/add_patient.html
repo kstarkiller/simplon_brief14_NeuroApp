@@ -95,11 +95,12 @@
           name: name,
           age: age,
           gender: gender,
+          scanner: {}
         };
 
         if (base64String) {
-          patientData.scanner_name = scanner.name;
-          patientData.scanner_img = base64String.split(",")[1];
+          patientData.scanner.scanner_name = scanner.name;
+          patientData.scanner.scanner_img = base64String.split(",")[1];
         }
 
         const response = await fetch("/add_patient", {
