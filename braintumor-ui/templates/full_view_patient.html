@@ -56,7 +56,7 @@
         <td>Gender</td>
         <td>{{ patient.gender }}</td>
       </tr>
-      {% if patient.scanner.scanner_img %}
+      {% if patient.scanner and patient.scanner.scanner_img %}
       <tr>
         <td>Scanner File Name</td>
         <td>{{ patient.scanner.scanner_name }}</td>
@@ -81,7 +81,7 @@
       <caption>
         Prediction Result
       </caption>
-      {% if patient.scanner.prediction.AI_predict %}
+      {% if patient.scanner and patient.scanner.prediction and patient.scanner.prediction.AI_predict %}
       <tr>
         <th>Label</th>
         <td>{{ patient.scanner.prediction.AI_predict }}</td>

@@ -214,6 +214,12 @@ async def predict_patient(request: Request, patient_id: str):
         prediction_result = prediction_result.json()
         if prediction_result:
             print(f"Prediction results are {prediction_result}")
+            patient_data = db.patients.find_one({"_id": ObjectId(patient_id)})
+            if patient_data.get("scanner") and patient_data["scanner"].get("prediction") is None:
+                db.patients.update_one(
+                    {"_id": ObjectId(patient_id)},
+                    {"$set": {"scanner.prediction": {}}}
+                )
             db.patients.update_one(
                 {"_id": ObjectId(patient_id)},
                 {"$set": {

@@ -49,9 +49,9 @@
     </select>
     <br>
 
-    {% if patient.scanner_img %}
-    <p id="scannerName">Scanner actuel: {{ patient.scanner_name }}</p>
-    <img src="data:image/png;base64,{{ patient.scanner_img }}" alt="Scanner" style="width: 100px; height: 100px;">
+    {% if patient.scanner.scanner_img %}
+    <p id="scannerName">Scanner actuel: {{ patient.scanner.scanner_name }}</p>
+    <img src="data:image/png;base64,{{ patient.scanner.scanner_img }}" alt="Scanner" style="width: 100px; height: 100px;">
     <br>
     <br>
     <button type="button" id="changeScannerBtn">Change Scanner</button>
@@ -59,7 +59,7 @@
     <br>
     {% endif %}
 
-    {% if not patient.scanner_img %}
+    {% if not patient.scanner.scanner_img %}
     <br>
     <button type="button" id="addScannerBtn">Ajouter Scanner</button>
     <input type="file" id="scanner" name="scanner" style="display: none;">
@@ -125,7 +125,7 @@
                 name: name ? name : initialName,
                 age: age ? age : initialAge,
                 gender: gender ? gender : initialGender,
-                prediction: {} // Ajoutez cette ligne
+                scanner: {}
             };
 
             // Nouvelle promesse pour lire le fichier scanner
@@ -138,8 +138,8 @@
                 });
 
                 readFile.then(base64String => {
-                    formData.prediction.scanner_name = scanner.name;
-                    formData.prediction.scanner_img = base64String.split(',')[1];
+                    formData.scanner.scanner_name = scanner.name;
+                    formData.scanner.scanner_img = base64String.split(',')[1];
 
                     // Effectuer une requête vers l'endpoint de modification du patient
                     fetch(`/edit_patient/${patientId}`, {
