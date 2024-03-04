@@ -8,12 +8,16 @@ import base64
 from bson import ObjectId
 from datetime import datetime
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from hidden import MONGO_URI, MLFLOW_RUN
 
 app = FastAPI()
 
 # Load the ML model
 mlflow.set_tracking_uri("http://localhost:5000")
-model = mlflow.pyfunc.load_model('runs:/cd2378db4d16452a831d248eea8811a7/models')
+model = mlflow.pyfunc.load_model(MLFLOW_RUN)
 
 
 # Define function normalize :
@@ -54,7 +58,7 @@ def normalize_image(img, target_size):
 
 
 # Connect to MongoDB
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient(MONGO_URI)
 db = client["braintumor"]
 
 

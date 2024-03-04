@@ -31,6 +31,9 @@ class PatientModel(BaseModel):
     scanner_img: Optional[str] = Form(None, description="Base64 encoded image")
     scanner_name: Optional[str] = Form(None)
 
+    def model_dump(self):
+        return self.__dict__
+
     @property
     def image_bytes(self):
         if self.scanner_img is not None:
@@ -68,7 +71,7 @@ class PatientViewModel(BaseModel):
     scanner_img: Optional[str] = None
     scanner_name: Optional[str] = None
     AI_predict: Optional[str] = None  # Make these fields optional
-    confidence: Optional[str] = None
+    confidence: Optional[float] = None
     prediction_date: Optional[str] = None
 
 
