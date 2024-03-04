@@ -15,6 +15,7 @@ from typing import Optional
 import base64
 import binascii
 import requests
+import math
 
 app = FastAPI()
 
@@ -222,10 +223,9 @@ async def predict_patient(request: Request, patient_id: str):
         prediction_result = prediction_result.json()
         if prediction_result:
             print(f"Prediction results are {prediction_result}")
-            HTMLResponse(
-                content=f"<script>alert('Prediction is available');</script>"
+            return HTMLResponse(
+                content=f"<script>alert('Prediction successfull');</script><meta http-equiv='refresh' content='0;url=/full_view_patient/{patient_id}' />"
             )
-            return RedirectResponse(url="/view_patients")
         else:
             raise HTTPException(
                 status_code=400,
