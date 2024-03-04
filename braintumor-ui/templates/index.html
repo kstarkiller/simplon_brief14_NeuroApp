@@ -1,5 +1,6 @@
 {% from "components/navbar.html" import navbar %} {% from
-"components/footer.html" import footer %}
+"components/footer.html" import footer %} {% from "components/cursor.html"
+import cursor %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -21,37 +22,6 @@
       </h1>
     </div>
 
-    <div id="cursor">
-      <div class="cursor--inner"></div>
-    </div>
-
-    {{ footer() }}
-    <script>
-      const cursor = document.querySelector("#cursor");
-      let mouse = { x: 300, y: 300 };
-      let pos = { x: 0, y: 0 };
-      const speed = 0.5;
-
-      const updatePosition = () => {
-        pos.x += (mouse.x - pos.x) * speed;
-        pos.y += (mouse.y - pos.y) * speed;
-        cursor.style.transform =
-          "translate3d(" + pos.x + "px ," + pos.y + "px, 0)";
-      };
-
-      const updateCoordinates = (e) => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-      };
-
-      window.addEventListener("mousemove", updateCoordinates);
-
-      function loop() {
-        updatePosition();
-        requestAnimationFrame(loop);
-      }
-
-      requestAnimationFrame(loop);
-    </script>
+    {{ cursor() }} {{ footer() }}
   </body>
 </html>
