@@ -56,42 +56,48 @@
         <td>Gender</td>
         <td>{{ patient.gender }}</td>
       </tr>
+      {% if patient.scanner.scanner_img %}
       <tr>
-        <td>Image Name</td>
-        <td>{{ patient.scanner_name }}</td>
+        <td>Scanner File Name</td>
+        <td>{{ patient.scanner.scanner_name }}</td>
       </tr>
       <tr>
         <td>Scanner Image</td>
         <td>
           <img
-            src="data:image/png;base64,{{ patient.scanner_img }}"
+            src="data:image/png;base64,{{ patient.scanner.scanner_img }}"
             alt="Scanner Image"
           />
         </td>
       </tr>
+      {% else %}
+      <tr>
+        <td>No image added yet</td>
+      </tr>
+      {% endif %}
     </table>
 
     <table>
       <caption>
         Prediction Result
       </caption>
-      {% if patient.AI_predict %}
+      {% if patient.scanner.prediction.AI_predict %}
       <tr>
         <th>Label</th>
-        <td>{{ patient.AI_predict }}</td>
+        <td>{{ patient.scanner.prediction.AI_predict }}</td>
       </tr>
       <tr>
         <th>Confidence</th>
-        {% if patient.AI_predict == "no" %}
-        <td>{{ (1 - patient.confidence) * 100 }}%</td>
+        {% if patient.scanner.prediction.AI_predict == "no" %}
+        <td>{{ (1 - patient.scanner.prediction.confidence) * 100 }}%</td>
         {% endif %}
-        {% if patient.AI_predict == "yes" %}
-        <td>{{ patient.confidence * 100 }}%</td>
+        {% if patient.scanner.prediction.AI_predict == "yes" %}
+        <td>{{ patient.scanner.prediction.confidence * 100 }}%</td>
         {% endif %}
       </tr>
       <tr>
         <th>Date</th>
-        <td>{{ patient.prediction_date }}</td>
+        <td>{{ patient.scanner.prediction.prediction_date }}</td>
       </tr>
       {% else %}
       <tr>
