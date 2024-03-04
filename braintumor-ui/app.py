@@ -1,7 +1,7 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from hidden import MONGO_URI
+# import sys
+# import os
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+# from hidden import MONGO_URI
 
 import uvicorn
 from fastapi import FastAPI, Request, Form, HTTPException
@@ -19,7 +19,7 @@ import requests
 app = FastAPI()
 
 # Connexion à la base de données MongoDB
-client = MongoClient(MONGO_URI)
+client = MongoClient("mongodb://localhost:27017/")
 db = client["braintumor"]
 
 
@@ -68,7 +68,7 @@ class PatientViewModel(BaseModel):
     scanner_img: Optional[str] = None
     scanner_name: Optional[str] = None
     AI_predict: Optional[str] = None  # Make these fields optional
-    confidence: Optional[str] = None
+    confidence: Optional[float] = None
     prediction_date: Optional[str] = None
 
 

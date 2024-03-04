@@ -13,7 +13,7 @@ app = FastAPI()
 
 # Load the ML model
 mlflow.set_tracking_uri("http://localhost:5000")
-model = mlflow.pyfunc.load_model('runs:/cd2378db4d16452a831d248eea8811a7/models')
+model = mlflow.pyfunc.load_model('runs:/271a79bb8656493ba59699901ab7c2aa/model')
 
 
 # Define function normalize :
