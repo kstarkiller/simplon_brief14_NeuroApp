@@ -99,5 +99,48 @@
       </tr>
       {% endif %}
     </table>
+    <table>
+      <caption>
+        Validation of the prediction
+      </caption>
+      {% if patient.AI_predict %}
+      <tr>
+        <th>Do you agree with prediction ?:</th>
+        <td><select id="predict_check" name="predict_check">
+      <option value="yes">Yes I agree</option>
+      <option value="no">No I don't agree</option>
+      </select>
+      <button type="button" id="checkBtn">Send check</button>
+
+      </td>
+      </tr>
+          {% else %}
+      <tr>
+        <td colspan="2">Waiting for prediction.</td>
+      </tr>
+      {% endif %}
+    </table>
+    <script>
+      const submitCheck = document.getElementById('checkBtn');
+      submitCheck.addEventListener('click', () => {
+          // get the value check
+          const doc_check = document.getElementById("predict_check").value;
+          // Effectuer une requête vers l'endpoint de modification du patient
+          fetch(`/check_predict_post/${patient_id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ predict_check: doc_check })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Rediriger vers la vue des patients après l'édition
+                    window.location.href = '/view_patients';
+                })
+                .catch(error => console.error('Error:', error));
+      });  
+ </script>
+
   </body>
 </html>

@@ -15,6 +15,7 @@ from typing import Optional
 import base64
 import binascii
 import requests
+from datetime import datetime #to get date for validation   
 
 app = FastAPI()
 
@@ -76,6 +77,8 @@ class PatientViewModel(BaseModel):
     AI_predict: Optional[str] = None  # Make these fields optional
     confidence: Optional[float] = None
     prediction_date: Optional[str] = None
+    predict_check: Optional[str] = None
+    predict_check_date: Optional[str] = None
 
     @validator('confidence')
     def validate_confidence(cls, v):
@@ -115,8 +118,7 @@ async def add_patient_post(patient: PatientModel):
     db.patients.insert_one(patient_data)
     return JSONResponse(content={"redirect_url": "/view_patients"})
 
-
-# Route for the full view of a patient
+# endpoint full_view_patient
 @app.get("/full_view_patient/{patient_id}", response_class=HTMLResponse)
 async def full_view_patient(request: Request, patient_id: str):
     # Retrieve patient information from the database
@@ -125,11 +127,11 @@ async def full_view_patient(request: Request, patient_id: str):
         # Prepare the data to pass to the HTML template
         patient = PatientViewModel(id=str(patient_data["_id"]), **patient_data)
         return templates.TemplateResponse(
-            "full_view_patient.html", {"request": request, "patient": patient}
+            "full_view_patient.html", 
+            {"request": request, "patient": patient, "patient_id": patient_id}
         )
     else:
         raise HTTPException(status_code=404, detail="Patient not found")
-
 
 # Route pour visualiser tous les patients
 @app.get("/view_patients", response_class=HTMLResponse)
@@ -233,6 +235,23 @@ async def predict_patient(request: Request, patient_id: str):
             )
     else:
         raise HTTPException(status_code=500, detail="Prediction request failed.")
+
+# Route pour faire le check de la prediction
+@app.get("/check_predict", response_class=HTMLResponse)
+def check_predict(request: Request):
+    return templates.TemplateResponse("view_full_patient.html", {"request": request})
+
+# to update mongoDB with new datas edited
+@app.post("/check_predict_post/{patient_id}")
+async def check_predict_post(patient_id: str, patient: PatientViewModel):
+    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    updated_fields = {k: v for k, v in patient.model_dump().items()}
+    # Update patient data with check result and date
+    db.patients.update_one({"_id": ObjectId(patient_id)}, {"$set": updated_fields,
+                                                           "predict_check_date": current_date})
+
+    # Return the page
+    return RedirectResponse(url="/view_patients")
 
 
 def trigger_prediction(image_data: str):

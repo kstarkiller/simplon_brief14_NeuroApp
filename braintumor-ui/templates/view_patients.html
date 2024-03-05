@@ -47,7 +47,7 @@
           <th>Name</th>
           <th>Age</th>
           <th>Gender</th>
-          <th>ID</th>
+          <th>Scan</th>
           <th>Action</th>
           <th>Predict</th>
           <th>View patient</th>
@@ -59,7 +59,7 @@
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
           <td>{{ patient.gender }}</td>
-          <td>{{ patient.id }}</td>
+          <td>{{ patient.scanner_name }}</td>
           <td>
             <a href="{{ url_for('edit_patient', patient_id=patient.id) }}"
               >Edit</a
