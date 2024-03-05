@@ -51,6 +51,10 @@ class PatientUpdateModel(BaseModel):
     gender: Optional[str] = Form(None)
     scanner_img: Optional[str] = Form(None, description="Base64 encoded image")
     scanner_name: Optional[str] = Form(None)
+    AI_predict: Optional[str] = None  # Make these fields optional
+    confidence: Optional[float] = None
+    prediction_date: Optional[str] = None
+    validation : Optional[str] = None 
 
     @property
     def image_bytes(self):
@@ -73,6 +77,8 @@ class PatientViewModel(BaseModel):
     AI_predict: Optional[str] = None  # Make these fields optional
     confidence: Optional[float] = None
     prediction_date: Optional[str] = None
+    validation : Optional[str] = None 
+    
 
 
 # Modèle Pydantic pour les prédictions (à adapter selon vos besoins)
@@ -149,6 +155,40 @@ async def view_patients(
     return templates.TemplateResponse(
         "view_patients.html", {"request": request, "patients": patients}
     )
+
+# Route pour visualiser tous les patients validés
+@app.get("/view_validates_patients", response_class=HTMLResponse)
+async def view_validates_patients( request: Request):
+
+    # query={'Gender':'female'}
+    query={}
+
+    patients = [
+        PatientViewModel(id=str(patient["_id"]), **patient)
+        for patient in db.patients.find(query)
+    ]
+    return templates.TemplateResponse(
+        "view_validates_patients.html", {"request": request, "patients": patients}
+    )
+
+
+# Route pour visualiser tous les patients en attente de validation 
+@app.get("/view_waiting_patients", response_class=HTMLResponse)
+async def view_waiting_patients( request: Request):
+
+    
+    # query={'Gender':'male'}
+    query = {}
+
+    patients = [
+        PatientViewModel(id=str(patient["_id"]), **patient)
+        for patient in db.patients.find(query).sort("confidence")
+    ]
+    return templates.TemplateResponse(
+        "view_waiting_patients.html", {"request": request, "patients": patients}
+    )
+
+
 
 
 # Route pour éditer un patient

@@ -38,11 +38,10 @@
 
     <table border="1">
       <caption>
-        <a href="{{ url_for('add_patient') }}">Add Patient</a>
+        <a href="{{ url_for('add_patient') }}"> add_patient  </a>
         <hr style="margin: 15px; background-color: transparent; border: none" />
       </caption>
       <thead>
-        
         <tr>
           <th>Name</th>
           <th>Age</th>
@@ -51,9 +50,6 @@
           <th>Prediction</th>
           <th>Date</th>
           <th>Confidence</th>
-          <th>Validation</th>
-          <th>scanner</th>
-
           <th>Edit</th>
           <th>Predict</th>
           <th>View patient</th>
@@ -61,21 +57,22 @@
       </thead>
 
       <tbody>
-        {% for patient in patients %}
+        
+    
+        {% for patient in patients %} 
+     
+        
+        
+        {% if patient.validation == None %}
         <tr>
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
           <td>{{ patient.gender }}</td>
           <td>{{ patient.id }}</td>
           <td>{{ patient.AI_predict }}</td>
-          <td>{{ patient.prediction_date}}</td>
+          <td>{{ patient.prediction_date }}</td>
           <td>{{ patient.confidence }}</td>
-          <td>{{patient.validation or "en attente de validation"}}</td>
-          <td>{{patient.scanner or "en attente de scanner"}}</td>
 
-         
-       
-          
           <td>
             <a href="{{ url_for('edit_patient', patient_id=patient.id) }}"
               >Edit</a
@@ -92,6 +89,7 @@
             >
           </td>
         </tr>
+        {% endif %}
         {% endfor %}
       </tbody>
     </table>
