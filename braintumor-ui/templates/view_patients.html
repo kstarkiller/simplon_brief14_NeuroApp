@@ -46,7 +46,7 @@ printButton %}
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
           <td>{{ patient.gender }}</td>
-          <td>{{ patient.scanner.scanner_img if patient.scanner is not none else "en attente de scanner" }}</td>
+          <td>{{ patient.scanner.scanner_name if patient.scanner is not none else "en attente de scanner" }}</td>
           <td>{{ patient.scanner.prediction.AI_predict if patient.scanner is not none else "en attente de prediction" }}</td>
           <td>{{ patient.scanner.prediction.confidence if patient.scanner is not none else "en attente de prediction" }}</td>
           <td>{{ patient.scanner.prediction.predict_check if patient.scanner is not none else "en attente de validation" }}</td>

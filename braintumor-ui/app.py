@@ -210,7 +210,7 @@ async def edit_patient_post(patient_id: str, patient: PatientUpdateModel):
 
     return RedirectResponse(url="/view_patients")
 
-
+# To search for new patients
 @app.get("/search_patient", response_class=JSONResponse)
 async def search_patient(patient_id: Optional[str] = None, name: Optional[str] = None):
     if not patient_id and not name:
@@ -277,7 +277,7 @@ async def predict_patient(request: Request, patient_id: str):
 def check_predict(request: Request):
     return templates.TemplateResponse("view_full_patient.html", {"request": request})
 
-# to update mongoDB with new datas edited
+# to update mongoDB with new datas on predictions check
 @app.post("/check_predict_post/{patient_id}")
 async def check_predict_post(patient_id: str, patient: PatientViewModel):
     current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
