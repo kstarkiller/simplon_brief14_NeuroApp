@@ -1,12 +1,10 @@
-{% from "components/navbar.html" import navbar %} {% from
-"components/footer.html" import footer %} {% from "components/print.html" import
-printButton %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Full View Patient</title>
+    <title>View Patients</title>
     <link
       rel="stylesheet"
       type="text/css"
@@ -14,115 +12,112 @@ printButton %}
     />
   </head>
   <body>
-    {{ navbar() }}
+    <style></style>
+    <nav>
+      <div class="NavContainer">
+        <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
 
-    <table id="tab">
-      <caption>
-        <h1>Patient Information</h1>
-      </caption>
+        <div class="LinkContainer">
+          <a href="/">Home</a>
+          <a href="/add_patient">Add New Patient</a>
+          <a href="/view_patients">View all</a>
+          <a href="/docs#">doc</a>
+          <div class="searchbarContainer">
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Enter Patient name"
+            />
+            <button id="search-button" class="search-button">
+              <img src="../static/src/search_icon.svg" class="button-image" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-      <tr>
-        <th colspan="2">Patient Information</th>
-      </tr>
-      <tr>
-        <td>Name</td>
-        <td>{{ patient.name }}</td>
-      </tr>
-      <tr>
-        <td>Age</td>
-        <td>{{ patient.age }}</td>
-      </tr>
-      <tr>
-        <td>Gender</td>
-        <td>{{ patient.gender }}</td>
-      </tr>
-      {% if patient.scanner and patient.scanner.scanner_img %}
-      <tr>
-        <td>Scanner File Name</td>
-        <td>{{ patient.scanner.scanner_name }}</td>
-      </tr>
-      <tr>
-        <td>Scanner Image</td>
-        <td>
-          <img
-            src="data:image/png;base64,{{ patient.scanner.scanner_img }}"
-            alt="Scanner Image"
-          />
-        </td>
-      </tr>
-      {% else %}
-      <tr>
-        <td>No image added yet</td>
-      </tr>
-      {% endif %}
-    </table>
- <!-- Gérer l'entrée des prédictions -->
-    <table> 
+    <table border="1">
       <caption>
-        Prediction Result
+        <a href="{{ url_for('add_patient') }}">add_patient</a>
+        <hr style="margin: 15px; background-color: transparent; border: none" />
       </caption>
-      {% if patient.scanner and patient.scanner.prediction and patient.scanner.prediction.AI_predict %}
-      <tr>
-        <th>Label</th>
-        <td>{{ patient.scanner.prediction.AI_predict }}</td>
-      </tr>
-      <tr>
-        <th>Confidence</th>
-        <td>{{ patient.scanner.prediction.confidence }}%</td>
-      </tr>
-      <tr>
-        <th>Date</th>
-        <td>{{ patient.scanner.prediction.prediction_date }}</td>
-      </tr>
-      {% else %}
-      <tr>
-        <td colspan="2">No prediction result available.</td>
-      </tr>
-      {% endif %}
-    </table>
-    <!-- Gérer l'entrée des validations -->
-    <table>
-      <caption>
-        Validation of the prediction
-      </caption>
-      {% if patient.scanner.prediction.AI_predict %}
-      <tr>
-        <th>Do you agree with prediction ?:</th>
-        <td><select id="predict_check" name="predict_check">
-      <option value="yes">Yes</option>
-      <option value="no">No</option>
-      </select>
-      <button type="button" id="checkBtn">Send check</button>
+      <thead>
+       
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>ID</th>
+          <th>Prediction</th>
+          <th>Date</th>
+          <th>Confidence</th>
+          <th>Edit</th>
+          <th>Predict</th>
+          <th>View patient</th>
+        </tr>
+      </thead>
 
-      </td>
-      </tr>
-          {% else %}
-      <tr>
-        <td colspan="2">Waiting for prediction.</td>
-      </tr>
-      {% endif %}
+      <tbody>
+        {% for patient in patients %}  
+        {% if patient.validation != None %}
+        <tr>
+          <td>{{ patient.name }}</td>
+          <td>{{ patient.age }}</td>
+          <td>{{ patient.gender }}</td>
+          <td>{{ patient.id }}</td>
+          <td>{{ patient.AI_predict }}</td>
+          <td>{{ patient.prediction_date }}</td>
+          <td>{{ patient.confidence }}</td>
+
+          <td>
+            <a href="{{ url_for('edit_patient', patient_id=patient.id) }}"
+              >Edit</a
+            >
+          </td>
+          <td>
+            <a href="{{ url_for('predict_patient', patient_id=patient.id) }}"
+              >Predict</a
+            >
+          </td>
+          <td>
+            <a href="{{ url_for('full_view_patient', patient_id=patient.id) }}"
+              >View full info</a
+            >
+          </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
     </table>
+
     <script>
-      const submitCheck = document.getElementById('checkBtn');
-      submitCheck.addEventListener('click', () => {
-          // get the value check
-          const doc_check = document.getElementById("predict_check").value;
-          // Effectuer une requête vers l'endpoint de modification du patient
-          fetch(`/check_predict_post/${patient_id}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ predict_check: doc_check })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Rediriger vers la vue des patients après l'édition
-                    window.location.href = '/view_patients';
-                })
-                .catch(error => console.error('Error:', error));
-      });  
-  </script>
-    {{ printButton() }} {{ footer() }}
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchButton = document.getElementById("search-button");
+        const searchInput = document.getElementById("search-input");
+
+        searchButton.addEventListener("click", function () {
+          const searchTerm = searchInput.value.trim();
+          if (!searchTerm) {
+            alert("Please enter a patient name or ID");
+            return;
+          }
+
+          let url = `/view_patients?`;
+          if (searchTerm.match(/^[a-f\d]{24}$/i)) {
+            url += `patient_id=${searchTerm}`;
+          } else {
+            url += `name=${encodeURIComponent(searchTerm)}`;
+          }
+
+          window.location.href = url;
+        });
+
+        searchInput.addEventListener("keyup", function (event) {
+          if (event.key === "Enter") {
+            searchButton.click();
+          }
+        });
+      });
+    </script>
   </body>
 </html>
