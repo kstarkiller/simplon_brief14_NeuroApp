@@ -1,7 +1,7 @@
-# import sys
-# import os
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-# from hidden import MONGO_URI
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from hidden import MONGO_URI
 
 import uvicorn
 from fastapi import FastAPI, Request, Form, HTTPException
@@ -15,13 +15,12 @@ from typing import Optional
 import base64
 import binascii
 import requests
-from datetime import datetime #to get date for validation   
-import math
+from datetime import datetime  
 
 app = FastAPI()
 
 # Connexion à la base de données MongoDB
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient(MONGO_URI)
 db = client["braintumor"]
 
 # Modèle Pydantic pour les prédictions (à adapter selon vos besoins)
@@ -178,8 +177,6 @@ async def view_waiting_patients( request: Request):
     return templates.TemplateResponse(
         "view_waiting_patients.html", {"request": request, "patients": patients}
     )
-
-
 
 
 # Route pour éditer un patient
