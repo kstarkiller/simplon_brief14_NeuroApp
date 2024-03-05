@@ -1,3 +1,6 @@
+{% from "components/navbar.html" import navbar %} {% from
+"components/footer.html" import footer %} {% from "components/print.html" import
+printButton %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,40 +12,17 @@
       type="text/css"
       href="{{ url_for('static', path='styles.css') }}"
     />
-
-    <style></style>
   </head>
   <body>
-    <nav>
-      <div class="NavContainer">
-        <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
+    {{ navbar() }}
 
-        <div class="LinkContainer">
-          <a href="/">Home</a>
-          <a href="/add_patient">Add New Patient</a>
-          <a href="/view_patients">View all</a>
-          <a href="/docs#">doc</a>
-          <div class="searchbarContainer">
-            <input
-              id="search-input"
-              type="text"
-              placeholder="Enter Patient name"
-            />
-            <button id="search-button" class="search-button">
-              <img src="../static/src/search_icon.svg" class="button-image" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <table>
+    <table id="tab">
       <caption>
         <h1>Patient Information</h1>
       </caption>
+
       <tr>
-        <th>Attribute</th>
-        <th>Value</th>
+        <th colspan="2">Patient Information</th>
       </tr>
       <tr>
         <td>Name</td>
@@ -56,42 +36,48 @@
         <td>Gender</td>
         <td>{{ patient.gender }}</td>
       </tr>
+      {% if patient.scanner and patient.scanner.scanner_img %}
       <tr>
-        <td>Image Name</td>
-        <td>{{ patient.scanner_name }}</td>
+        <td>Scanner File Name</td>
+        <td>{{ patient.scanner.scanner_name }}</td>
       </tr>
       <tr>
         <td>Scanner Image</td>
         <td>
           <img
-            src="data:image/png;base64,{{ patient.scanner_img }}"
+            src="data:image/png;base64,{{ patient.scanner.scanner_img }}"
             alt="Scanner Image"
           />
         </td>
       </tr>
+      {% else %}
+      <tr>
+        <td>No image added yet</td>
+      </tr>
+      {% endif %}
     </table>
 
     <table>
       <caption>
         Prediction Result
       </caption>
-      {% if patient.AI_predict %}
+      {% if patient.scanner and patient.scanner.prediction and patient.scanner.prediction.AI_predict %}
       <tr>
         <th>Label</th>
-        <td>{{ patient.AI_predict }}</td>
+        <td>{{ patient.scanner.prediction.AI_predict }}</td>
       </tr>
       <tr>
         <th>Confidence</th>
-        {% if patient.AI_predict == "no" %}
-        <td>{{ (1 - patient.confidence) * 100 }}%</td>
+        {% if patient.scanner.prediction.AI_predict == "no" %}
+        <td>{{ (1 - patient.scanner.prediction.confidence) * 100 }}%</td>
         {% endif %}
-        {% if patient.AI_predict == "yes" %}
-        <td>{{ patient.confidence * 100 }}%</td>
+        {% if patient.scanner.prediction.AI_predict == "yes" %}
+        <td>{{ patient.scanner.prediction.confidence * 100 }}%</td>
         {% endif %}
       </tr>
       <tr>
         <th>Date</th>
-        <td>{{ patient.prediction_date }}</td>
+        <td>{{ patient.scanner.prediction.prediction_date }}</td>
       </tr>
       {% else %}
       <tr>
@@ -140,7 +126,7 @@
                 })
                 .catch(error => console.error('Error:', error));
       });  
- </script>
-
+  </script>
+    {{ printButton() }} {{ footer() }}
   </body>
 </html>

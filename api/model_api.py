@@ -69,9 +69,10 @@ async def predict(patient_id: str):
     patient_data = db.patients.find_one({"_id": ObjectId(patient_id)})
     if patient_data is None:
         raise HTTPException(status_code=404, detail="Patient not found.")
+    scanner = patient_data.get("scanner")
 
     # Retrieve scanner_img from patient data
-    scanner_img = patient_data.get("scanner_img")
+    scanner_img = scanner.get("scanner_img")
     if scanner_img is None:
         raise HTTPException(
             status_code=400, detail="No scanner image found for the patient."
@@ -79,7 +80,6 @@ async def predict(patient_id: str):
 
     # Decode the base64 encoded image data
     image_data = base64.b64decode(scanner_img)
-    print(image_data)
 
     # Convert the bytes to an image
     image_data = np.frombuffer(image_data, np.uint8)
@@ -101,17 +101,17 @@ async def predict(patient_id: str):
     # Get the current date and time
     current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Update patient data with prediction result and date
-    db.patients.update_one(
-        {"_id": ObjectId(patient_id)},
-        {
-            "$set": {
-                "AI_predict": pred_label,
-                "confidence": confidence,
-                "prediction_date": current_date,
-            }
-        },
-    )
+    # # Update patient data with prediction result and date
+    # db.patients.update_one(
+    #     {"_id": ObjectId(patient_id)},
+    #     {
+    #         "$set": {
+    #             "prediction.AI_predict": pred_label,
+    #             "prediction.confidence": confidence,
+    #             "prediction.prediction_date": current_date,
+    #         }
+    #     },
+    # )
 
     # Return the prediction result
     return {

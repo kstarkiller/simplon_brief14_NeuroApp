@@ -1,3 +1,5 @@
+{% from "components/navbar.html" import navbar %} {% from
+"components/footer.html" import footer %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -18,28 +20,7 @@
     </style>
   </head>
   <body>
-    <nav>
-      <div class="NavContainer">
-        <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
-
-        <div class="LinkContainer">
-          <a href="/">Home</a>
-          <a href="/add_patient">Add New Patient</a>
-          <a href="/view_patients">View all</a>
-          <a href="/docs#">doc</a>
-          <div class="searchbarContainer">
-            <input
-              id="search-input"
-              type="text"
-              placeholder="Enter Patient name"
-            />
-            <button id="search-button" class="search-button">
-              <img src="../static/src/search_icon.svg" class="button-image" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
+    {{ navbar() }}
 
     <form id="patientForm" style="margin-top: 100px">
       <h1 style="text-align: center">Add Patient</h1>
@@ -64,6 +45,8 @@
 
       <button type="button" onclick="submitForm()">Submit</button>
     </form>
+
+    <!-- {{ footer() }} -->
 
     <script>
       const scannerBtn = document.getElementById("scannerBtn");
@@ -95,11 +78,12 @@
           name: name,
           age: age,
           gender: gender,
+          scanner: {}
         };
 
         if (base64String) {
-          patientData.scanner_name = scanner.name;
-          patientData.scanner_img = base64String.split(",")[1];
+          patientData.scanner.scanner_name = scanner.name;
+          patientData.scanner.scanner_img = base64String.split(",")[1];
         }
 
         const response = await fetch("/add_patient", {

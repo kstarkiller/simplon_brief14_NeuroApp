@@ -1,63 +1,33 @@
+html {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f6f6f4;
+
+  /* Disable text selection */
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  margin: 0;
   padding: 0;
+  margin: 0;
+  background-image: url("../static/src/bg.webp");
+  background-size: 79vh;
+  background-repeat: no-repeat;
+  background-position: center;
 }
-
-h1,
-h2,
-h3 {
-  color: #333;
+.CatchPhraseContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  pointer-events: none;
 }
-
-form {
-  max-width: 400px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #f4f4f4;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-input,
-select {
-  width: 100%;
-  padding: 8px;
-  /* margin-bottom: 10px; */
-  box-sizing: border-box;
-}
-
-button {
-  background-color: black;
+.CatchPhraseContainer > h1 {
+  font-size: 25px;
   color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
+  text-align: center;
   background-color: black;
-}
-
-table {
-  width: 90vw;
-  margin: auto;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th,
-td {
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  text-align: left;
-}
-
-th {
-  background-color: black;
-  color: white;
+  margin-top: -7vh;
 }
 
 nav {
@@ -75,13 +45,8 @@ nav > h2 {
   align-items: center;
 }
 
-td :any-link {
-  background-color: black;
-}
-
 :any-link {
   color: white;
-  background-color: black;
   text-decoration: none;
   padding: 10px;
   transition: 1s;
@@ -157,34 +122,4 @@ td :any-link {
     border: solid 2px black;
     outline: #f6f6f4 5px solid;
   }
-}
-
-#btPrint {
-  height: 30px;
-  width: 30px;
-  background-color: transparent;
-}
-
-.btnContainerFP {
-  width: 100vw;
-}
-
-.btnContainerFP {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  padding: 10px;
-  height: 100px;
-  width: 100px;
-}
-
-.btnContainerFP > button > svg {
-  transition: 1s;
-}
-
-.btnContainerFP > button > svg:hover {
-  border: solid 1px black;
 }
