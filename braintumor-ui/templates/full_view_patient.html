@@ -1,3 +1,6 @@
+{% from "components/navbar.html" import navbar %} {% from
+"components/footer.html" import footer %} {% from "components/print.html" import
+printButton %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,40 +12,17 @@
       type="text/css"
       href="{{ url_for('static', path='styles.css') }}"
     />
-
-    <style></style>
   </head>
   <body>
-    <nav>
-      <div class="NavContainer">
-        <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
+    {{ navbar() }}
 
-        <div class="LinkContainer">
-          <a href="/">Home</a>
-          <a href="/add_patient">Add New Patient</a>
-          <a href="/view_patients">View all</a>
-          <a href="/docs#">doc</a>
-          <div class="searchbarContainer">
-            <input
-              id="search-input"
-              type="text"
-              placeholder="Enter Patient name"
-            />
-            <button id="search-button" class="search-button">
-              <img src="../static/src/search_icon.svg" class="button-image" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <table>
+    <table id="tab">
       <caption>
         <h1>Patient Information</h1>
       </caption>
+
       <tr>
-        <th>Attribute</th>
-        <th>Value</th>
+        <th colspan="2">Patient Information</th>
       </tr>
       <tr>
         <td>Name</td>
@@ -105,5 +85,48 @@
       </tr>
       {% endif %}
     </table>
+    <table>
+      <caption>
+        Validation of the prediction
+      </caption>
+      {% if patient.AI_predict %}
+      <tr>
+        <th>Do you agree with prediction ?:</th>
+        <td><select id="predict_check" name="predict_check">
+      <option value="yes">Yes I agree</option>
+      <option value="no">No I don't agree</option>
+      </select>
+      <button type="button" id="checkBtn">Send check</button>
+
+      </td>
+      </tr>
+          {% else %}
+      <tr>
+        <td colspan="2">Waiting for prediction.</td>
+      </tr>
+      {% endif %}
+    </table>
+    <script>
+      const submitCheck = document.getElementById('checkBtn');
+      submitCheck.addEventListener('click', () => {
+          // get the value check
+          const doc_check = document.getElementById("predict_check").value;
+          // Effectuer une requête vers l'endpoint de modification du patient
+          fetch(`/check_predict_post/${patient_id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ predict_check: doc_check })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Rediriger vers la vue des patients après l'édition
+                    window.location.href = '/view_patients';
+                })
+                .catch(error => console.error('Error:', error));
+      });  
+  </script>
+    {{ printButton() }} {{ footer() }}
   </body>
 </html>

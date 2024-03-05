@@ -1,4 +1,5 @@
-<!-- edit_patient.html -->
+{% from "components/navbar.html" import navbar %}
+{% from "components/footer.html" import footer %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,46 +9,26 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles.css') }}">
 </head>
 <body>
-    <nav>
-        <div class="NavContainer">
-            <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
 
-            <div class="LinkContainer">
-            <a href="/">Home</a>
-            <a href="/add_patient">Add New Patient</a>
-            <a href="/view_patients">View all</a>
-            <a href="/docs#">doc</a>
-            <div class="searchbarContainer">
-                <input
-                id="search-input"
-                type="text"
-                placeholder="Enter Patient name"
-                />
-                <button id="search-button" class="search-button">
-                <img src="../static/src/search_icon.svg" class="button-image" />
-                </button>
-            </div>
-            </div>
-        </div>
-        </nav>
-<h1>Edit Patient</h1>
+    {{ navbar() }}
+    <h1>Edit Patient</h1>
 
-<form id="editPatientForm">
-    <!-- Ajouter des champs pour éditer les informations du patient -->
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="name" required value="{{ patient.name }}">
-    <br>
+    <form id="editPatientForm">
+        <!-- Ajouter des champs pour éditer les informations du patient -->
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required value="{{ patient.name }}">
+        <br>
 
-    <label for="age">Age:</label>
-    <input type="number" id="age" name="age" required value="{{ patient.age }}">
-    <br>
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required value="{{ patient.age }}">
+        <br>
 
-    <label for="gender">Gender:</label>
-    <select id="gender" name="gender" required>
-        <option value="male" {{ "selected" if patient.gender == "male" else "" }}>Male</option>
-        <option value="female" {{ "selected" if patient.gender == "female" else "" }}>Female</option>
-    </select>
-    <br>
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender" required>
+            <option value="male" {{ "selected" if patient.gender == "male" else "" }}>Male</option>
+            <option value="female" {{ "selected" if patient.gender == "female" else "" }}>Female</option>
+        </select>
+        <br>
 
     {% if patient.scanner.scanner_img %}
     <p id="scannerName">Scanner actuel: {{ patient.scanner.scanner_name }}</p>
@@ -66,9 +47,9 @@
     <br>
     {% endif %}
 
-    <!-- Ajouter un champ caché pour stocker l'ID du patient -->
-    <input type="hidden" id="patientId" name="patientId" value="{{ patient_id }}">
-    <br>
+        <!-- Ajouter un champ caché pour stocker l'ID du patient -->
+        <input type="hidden" id="patientId" name="patientId" value="{{ patient_id }}">
+        <br>
 
     <!-- Ajouter un bouton pour soumettre le formulaire -->
     <button type="button" id="submitBtn">Submit</button>
