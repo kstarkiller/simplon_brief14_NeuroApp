@@ -145,6 +145,40 @@ async def view_patients(
         "view_patients.html", {"request": request, "patients": patients}
     )
 
+# Route pour visualiser tous les patients validés
+@app.get("/view_validates_patients", response_class=HTMLResponse)
+async def view_validates_patients( request: Request):
+
+    # query={'Gender':'female'}
+    query={}
+
+    patients = [
+        PatientViewModel(id=str(patient["_id"]), **patient)
+        for patient in db.patients.find(query)
+    ]
+    return templates.TemplateResponse(
+        "view_validates_patients.html", {"request": request, "patients": patients}
+    )
+
+
+# Route pour visualiser tous les patients en attente de validation 
+@app.get("/view_waiting_patients", response_class=HTMLResponse)
+async def view_waiting_patients( request: Request):
+
+    
+    # query={'Gender':'male'}
+    query = {}
+
+    patients = [
+        PatientViewModel(id=str(patient["_id"]), **patient)
+        for patient in db.patients.find(query).sort("confidence")
+    ]
+    return templates.TemplateResponse(
+        "view_waiting_patients.html", {"request": request, "patients": patients}
+    )
+
+
+
 
 # Route pour éditer un patient
 @app.get("/edit_patient/{patient_id}", response_class=HTMLResponse)
