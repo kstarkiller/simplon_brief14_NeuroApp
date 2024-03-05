@@ -36,39 +36,48 @@ printButton %}
         <td>Gender</td>
         <td>{{ patient.gender }}</td>
       </tr>
+      {% if patient.scanner and patient.scanner.scanner_img %}
       <tr>
-        <td>Image Name</td>
-        <td>{{ patient.scanner_name }}</td>
+        <td>Scanner File Name</td>
+        <td>{{ patient.scanner.scanner_name }}</td>
       </tr>
       <tr>
         <td>Scanner Image</td>
         <td>
           <img
-            src="data:image/png;base64,{{ patient.scanner_img }}"
+            src="data:image/png;base64,{{ patient.scanner.scanner_img }}"
             alt="Scanner Image"
           />
         </td>
       </tr>
+      {% else %}
+      <tr>
+        <td>No image added yet</td>
+      </tr>
+      {% endif %}
+    </table>
 
+    <table>
+      <caption>
+        Prediction Result
+      </caption>
+      {% if patient.scanner and patient.scanner.prediction and patient.scanner.prediction.AI_predict %}
       <tr>
-        <th colspan="2">Prediction Result</th>
+        <th>Label</th>
+        <td>{{ patient.scanner.prediction.AI_predict }}</td>
       </tr>
-      {% if patient.AI_predict %}
       <tr>
-        <td>Label</td>
-        <td>{{ patient.AI_predict }}</td>
-      </tr>
-      <tr>
-        <td>Confidence</td>
-        {% if patient.AI_predict == "no" %}
-        <td>{{ (1 - patient.confidence) * 100 }}%</td>
-        {% endif %} {% if patient.AI_predict == "yes" %}
-        <td>{{ patient.confidence * 100 }}%</td>
+        <th>Confidence</th>
+        {% if patient.scanner.prediction.AI_predict == "no" %}
+        <td>{{ (1 - patient.scanner.prediction.confidence) * 100 }}%</td>
+        {% endif %}
+        {% if patient.scanner.prediction.AI_predict == "yes" %}
+        <td>{{ patient.scanner.prediction.confidence * 100 }}%</td>
         {% endif %}
       </tr>
       <tr>
-        <td>Date</td>
-        <td>{{ patient.prediction_date }}</td>
+        <th>Date</th>
+        <td>{{ patient.scanner.prediction.prediction_date }}</td>
       </tr>
       {% else %}
       <tr>

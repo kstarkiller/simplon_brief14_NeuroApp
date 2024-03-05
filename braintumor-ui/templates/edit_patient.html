@@ -30,39 +30,45 @@
         </select>
         <br>
 
-        {% if patient.scanner_img %}
-        <p id="scannerName">Scanner actuel: {{ patient.scanner_name }}</p>
-        <img src="data:image/png;base64,{{ patient.scanner_img }}" alt="Scanner" style="width: 100px; height: 100px;">
-        <br>
-        <br>
-        <button type="button" id="scannerBtn">Change Scanner</button>
-        <input type="file" id="scanner" name="scanner" style="display: none;">
-        <br>
-        {% endif %}
+    {% if patient.scanner.scanner_img %}
+    <p id="scannerName">Scanner actuel: {{ patient.scanner.scanner_name }}</p>
+    <img src="data:image/png;base64,{{ patient.scanner.scanner_img }}" alt="Scanner" style="width: 100px; height: 100px;">
+    <br>
+    <br>
+    <button type="button" id="changeScannerBtn">Change Scanner</button>
+    <input type="file" id="scanner" name="scanner" style="display: none;">
+    <br>
+    {% endif %}
 
-        {% if not patient.scanner_img %}
-        <br>
-        <button type="button" id="scannerBtn">Ajouter Scanner</button>
-        <input type="file" id="scanner" name="scanner" style="display: none;">
-        <br>
-        {% endif %}
+    {% if not patient.scanner.scanner_img %}
+    <br>
+    <button type="button" id="addScannerBtn">Ajouter Scanner</button>
+    <input type="file" id="scanner" name="scanner" style="display: none;">
+    <br>
+    {% endif %}
 
         <!-- Ajouter un champ caché pour stocker l'ID du patient -->
         <input type="hidden" id="patientId" name="patientId" value="{{ patient_id }}">
         <br>
 
-        <!-- Ajouter un bouton pour soumettre le formulaire -->
-        <button type="button" id="submitBtn">Submit</button>
-    </form>
-    {{footer()}}
-    <script>
+    <!-- Ajouter un bouton pour soumettre le formulaire -->
+    <button type="button" id="submitBtn">Submit</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
         // Stocker les valeurs initiales
         const initialName = document.getElementById('name').value;
         const initialAge = document.getElementById('age').value;
         const initialGender = document.getElementById('gender').value;
         const initialScanner = document.getElementById('scanner').files[0];
-        const scannerName = document.getElementById('scannerName').textContent;
-        const scannerBtn = document.getElementById('scannerBtn');
+        const scannerNameElement = document.getElementById('scannerName');
+        let scannerName = '';
+        if (scannerNameElement) {
+            scannerName = scannerNameElement.textContent;
+        }
+        const changeScannerBtn = document.getElementById('changeScannerBtn');
+        const addScannerBtn = document.getElementById('addScannerBtn');
         const scannerInput = document.getElementById('scanner');
 
         // Préremplir les champs du formulaire avec les valeurs initiales
@@ -70,10 +76,21 @@
         document.getElementById('age').value = initialAge;
         document.getElementById('gender').value = initialGender;
 
-        // Gérer le bouton de changement ou d'ajout de scanner
-        scannerBtn.addEventListener('click', () => {
-            scannerInput.style.display = 'block';
-        });
+        // Gérer le bouton de changement
+        if (changeScannerBtn) {
+            changeScannerBtn.addEventListener('click', () => {
+                scannerInput.click(); // This will open the file dialog
+                scannerInput.style.display = 'block';
+            });
+        }
+
+        // Gérer le bouton d'ajout de scanner
+        if (addScannerBtn) {
+            addScannerBtn.addEventListener('click', () => {
+                scannerInput.click(); // This will open the file dialog
+                scannerInput.style.display = 'block';
+            });
+        }
 
         const submitButton = document.getElementById('submitBtn');
         submitButton.addEventListener('click', () => {
@@ -89,6 +106,7 @@
                 name: name ? name : initialName,
                 age: age ? age : initialAge,
                 gender: gender ? gender : initialGender,
+                scanner: {}
             };
 
             // Nouvelle promesse pour lire le fichier scanner
@@ -101,8 +119,8 @@
                 });
 
                 readFile.then(base64String => {
-                    formData.scanner_name = scanner.name;
-                    formData.scanner_img = base64String.split(',')[1];
+                    formData.scanner.scanner_name = scanner.name;
+                    formData.scanner.scanner_img = base64String.split(',')[1];
 
                     // Effectuer une requête vers l'endpoint de modification du patient
                     fetch(`/edit_patient/${patientId}`, {
@@ -136,7 +154,8 @@
                 .catch(error => console.error('Error:', error));
             };
         });
-    </script>
+    });
+</script>
 
 </body>
 </html>
