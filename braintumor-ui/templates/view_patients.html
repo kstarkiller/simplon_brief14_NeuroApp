@@ -55,8 +55,8 @@ printButton %}
           <td>{{ patient.scanner.prediction.AI_predict }}</td>
           <td>{{ patient.scanner.prediction.prediction_date}}</td>
           <td>{{ patient.scanner.prediction.confidence }}</td>
-          <td>{{patient.validation or "en attente de validation"}}</td>
-          <td>{{patient.scanner or "en attente de scanner"}}</td>
+          <td>{{patient.scanner.prediction.validation or "en attente de validation"}}</td>
+          <td>{{patient.scanner.name or "en attente de scanner"}}</td>
 
           <td>
             <a href="{{ url_for('edit_patient', patient_id=patient.id) }}"

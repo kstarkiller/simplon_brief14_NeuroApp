@@ -50,9 +50,9 @@
           <td>{{ patient.age }}</td>
           <td>{{ patient.gender }}</td>
           <td>{{ patient.id }}</td>
-          <td>{{ patient.AI_predict }}</td>
-          <td>{{ patient.prediction_date }}</td>
-          <td>{{ patient.confidence }}</td>
+          <td>{{ patient.scanner.prediction.AI_predict }}</td>
+          <td>{{ patient.scanner.prediction.prediction_date }}</td>
+          <td>{{ patient.scanner.prediction.confidence }}</td>
 
           <td>
             <a href="{{ url_for('edit_patient', patient_id=patient.id) }}"
