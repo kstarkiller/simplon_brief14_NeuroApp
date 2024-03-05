@@ -28,6 +28,8 @@ printButton %}
           <th>Name</th>
           <th>Age</th>
           <th>Gender</th>
+          <th>Scan</th>
+          <th>Action</th>
           <th>ID</th>
           <th>Prediction</th>
           <th>Date</th>
@@ -36,6 +38,7 @@ printButton %}
           <th>scanner</th>
 
           <th>Edit</th>
+
           <th>Predict</th>
           <th>View patient</th>
         </tr>
@@ -47,23 +50,21 @@ printButton %}
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
           <td>{{ patient.gender }}</td>
+          <td>{{ patient.scanner.scanner_name }}</td>
           <td>{{ patient.id }}</td>
-          <td>{{ patient.AI_predict }}</td>
-          <td>{{ patient.prediction_date}}</td>
-          <td>{{ patient.confidence }}</td>
+          <td>{{ patient.scanner.prediction.AI_predict }}</td>
+          <td>{{ patient.scanner.prediction.prediction_date}}</td>
+          <td>{{ patient.scanner.prediction.confidence }}</td>
           <td>{{patient.validation or "en attente de validation"}}</td>
           <td>{{patient.scanner or "en attente de scanner"}}</td>
 
-         
-       
-          
           <td>
             <a href="{{ url_for('edit_patient', patient_id=patient.id) }}"
               >Edit</a
             >
           </td>
           <td>
-            <a href="{{ url_for('predict_patient', patient_id=patient.id) }}"
+           <a href="{{ url_for('predict_patient', patient_id=patient.id) }}"
               >Predict</a
             >
           </td>
