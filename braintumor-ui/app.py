@@ -1,7 +1,7 @@
-# import sys
-# import os
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-# from hidden import MONGO_URI
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from hidden import MONGO_URI
 
 import uvicorn
 from fastapi import FastAPI, Request, Form, HTTPException
@@ -15,13 +15,12 @@ from typing import Optional
 import base64
 import binascii
 import requests
-from datetime import datetime #to get date for validation   
-import math
+from datetime import datetime  
 
 app = FastAPI()
 
 # Connexion à la base de données MongoDB
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient(MONGO_URI)
 db = client["braintumor"]
 
 # Modèle Pydantic pour les prédictions (à adapter selon vos besoins)
@@ -180,8 +179,6 @@ async def view_waiting_patients( request: Request):
     )
 
 
-
-
 # Route pour éditer un patient
 @app.get("/edit_patient/{patient_id}", response_class=HTMLResponse)
 async def edit_patient(request: Request, patient_id: str):
@@ -259,8 +256,8 @@ async def predict_patient(request: Request, patient_id: str):
             db.patients.update_one(
                 {"_id": ObjectId(patient_id)},
                 {"$set": {
-                    "scanner.prediction.AI_predict": prediction_result["AI_predict"],
-                    "scanner.prediction.confidence": prediction_result["confidence"],
+                    "scanner.prediction.AI_predict": 'Tumor' if prediction_result["AI_predict"] == "yes" else 'No tumor',
+                    "scanner.prediction.confidence": (1 - prediction_result["confidence"])*100 if prediction_result["AI_predict"] == "no" else prediction_result["confidence"]*100,
                     "scanner.prediction.prediction_date": prediction_result["prediction_date"]
                 }}
             )

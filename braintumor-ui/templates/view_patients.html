@@ -29,18 +29,14 @@ printButton %}
           <th>Age</th>
           <th>Gender</th>
           <th>Scan</th>
-          <th>Action</th>
-          <th>ID</th>
           <th>Prediction</th>
-          <th>Date</th>
           <th>Confidence</th>
           <th>Validation</th>
-          <th>scanner</th>
 
           <th>Edit</th>
 
           <th>Predict</th>
-          <th>View patient</th>
+          <!-- <th>View patient</th> -->
         </tr>
       </thead>
 
@@ -50,14 +46,21 @@ printButton %}
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
           <td>{{ patient.gender }}</td>
-          <td>{{ patient.scanner.scanner_name }}</td>
-          <td>{{ patient.id }}</td>
-          <td>{{ patient.scanner.prediction.AI_predict }}</td>
-          <td>{{ patient.scanner.prediction.prediction_date}}</td>
-          <td>{{ patient.scanner.prediction.confidence }}</td>
-          <td>{{patient.validation or "en attente de validation"}}</td>
-          <td>{{patient.scanner or "en attente de scanner"}}</td>
-
+          {% if patient.scanner and patient.scanner.scanner_img %}
+          <td>Yes</td>
+          <td>{{ patient.scanner.prediction.AI_predict or "Waiting prediction" }}</td>
+          {% if patient.scanner.prediction.confidence %}
+          <td>{{ patient.scanner.prediction.confidence }}%</td>
+          {% else %}
+          <td>{{ patient.scanner.prediction.confidence or "Waiting prediction" }}</td>
+          {% endif %}
+          <td>{{ patient.scanner.prediction.predict_check or "Waiting validation" }}</td>
+          {% else %}
+          <td>Waiting scanner</td>
+          <td>Waiting prediction</td>
+          <td>Waiting prediction</td>
+          <td>Waiting validation</td>
+          {% endif %}
           <td>
             <a href="{{ url_for('edit_patient', patient_id=patient.id) }}"
               >Edit</a
@@ -70,7 +73,7 @@ printButton %}
           </td>
           <td>
             <a href="{{ url_for('full_view_patient', patient_id=patient.id) }}"
-              >View full info</a
+              >View patient</a
             >
           </td>
         </tr>
