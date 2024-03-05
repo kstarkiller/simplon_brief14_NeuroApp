@@ -10,11 +10,12 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from pymongo import MongoClient
 from bson import ObjectId
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import Optional
 import base64
 import binascii
 import requests
+import math
 
 app = FastAPI()
 
@@ -22,49 +23,50 @@ app = FastAPI()
 client = MongoClient(MONGO_URI)
 db = client["braintumor"]
 
+# Modèle Pydantic pour les prédictions (à adapter selon vos besoins)
+class PredictionModel(BaseModel):
+    AI_predict: Optional[str] = None
+    confidence: Optional[float] = None
+    prediction_date: Optional[str] = None
+
+    @validator('confidence')
+    def validate_confidence(cls, v):
+        return round(v, 2) if v is not None else v
+
+# Modèle Pydantic pour le scanner
+class ScannerModel(BaseModel):
+    scanner_img: Optional[str] = Form(None, description="Base64 encoded image")
+    scanner_name: Optional[str] = Form(None)
+    prediction: Optional[PredictionModel] = None
+
+    @property
+    def image_bytes(self):
+        if self.scanner_img is not None:
+            try:
+                return base64.b64decode(self.scanner_img)
+            except binascii.Error:
+                return None
+        return None
 
 # Modèles Pydantic pour l'ajout d'un patient
 class PatientModel(BaseModel):
     name: str = Form(...)
     age: int = Form(...)
     gender: str = Form(...)
-    scanner_img: Optional[str] = Form(None, description="Base64 encoded image")
-    scanner_name: Optional[str] = Form(None)
+    scanner: Optional[ScannerModel] = None
 
     def model_dump(self):
         return self.__dict__
-
-    @property
-    def image_bytes(self):
-        if self.scanner_img is not None:
-            try:
-                return base64.b64decode(self.scanner_img)
-            except binascii.Error:
-                return None
-        return None
-
 
 # Modèles Pydantic pour la modification du patient
 class PatientUpdateModel(BaseModel):
     name: Optional[str] = Form(None)
     age: Optional[int] = Form(None)
     gender: Optional[str] = Form(None)
-    scanner_img: Optional[str] = Form(None, description="Base64 encoded image")
-    scanner_name: Optional[str] = Form(None)
-    AI_predict: Optional[str] = None  # Make these fields optional
-    confidence: Optional[float] = None
-    prediction_date: Optional[str] = None
-    validation : Optional[str] = None 
+    scanner: Optional[ScannerModel] = None
 
-    @property
-    def image_bytes(self):
-        if self.scanner_img is not None:
-            try:
-                return base64.b64decode(self.scanner_img)
-            except binascii.Error:
-                return None
-        return None
-
+    def model_dump(self):
+        return self.__dict__
 
 # Modèles Pydantic pour la visualisation des patients
 class PatientViewModel(BaseModel):
@@ -72,19 +74,7 @@ class PatientViewModel(BaseModel):
     age: int
     gender: str
     id: str
-    scanner_img: Optional[str] = None
-    scanner_name: Optional[str] = None
-    AI_predict: Optional[str] = None  # Make these fields optional
-    confidence: Optional[float] = None
-    prediction_date: Optional[str] = None
-    validation : Optional[str] = None 
-    
-
-
-# Modèle Pydantic pour les prédictions (à adapter selon vos besoins)
-class PredictionModel(BaseModel):
-    # Ajoutez les champs nécessaires pour les prédictions
-    pass
+    scanner: Optional[ScannerModel] = None
 
 
 # Montez le répertoire 'static' pour servir les fichiers statiques
@@ -106,11 +96,12 @@ async def read_index(request: Request):
 def add_patient(request: Request):
     return templates.TemplateResponse("add_patient.html", {"request": request})
 
-
 @app.post("/add_patient")
 async def add_patient_post(patient: PatientModel):
     # Insérer le patient dans la base de données
     patient_data = patient.model_dump()
+    if patient_data.get('scanner'):
+        patient_data['scanner'] = patient_data['scanner'].dict()
     db.patients.insert_one(patient_data)
     return JSONResponse(content={"redirect_url": "/view_patients"})
 
@@ -135,9 +126,7 @@ async def full_view_patient(request: Request, patient_id: str):
 async def view_patients(
     request: Request,
     name: Optional[str] = None,
-    patient_id: Optional[str] = None,
-    scanner_img: Optional[str] = None,
-    scanner_name: Optional[str] = None):
+    patient_id: Optional[str] = None):
     # Récupérer tous les patients depuis la base de données
     query = {}
     if name:
@@ -206,11 +195,16 @@ async def edit_patient(request: Request, patient_id: str):
         return JSONResponse(content={"error": "Patient not found"})
 
 
-# to update mongoDB with new datas edited
+# To update mongoDB with new datas edited
 @app.post("/edit_patient/{patient_id}")
 async def edit_patient_post(patient_id: str, patient: PatientUpdateModel):
     # Obtenir un dictionnaire des champs définis
     updated_fields = {k: v for k, v in patient.model_dump().items() if v is not None}
+    if updated_fields.get('scanner'):
+        scanner_fields = updated_fields['scanner'].dict()
+        for key, value in scanner_fields.items():
+            updated_fields[f'scanner.{key}'] = value
+        del updated_fields['scanner']
 
     # Mettre à jour uniquement les champs définis dans la base de données
     db.patients.update_one({"_id": ObjectId(patient_id)}, {"$set": updated_fields})
@@ -224,7 +218,6 @@ async def search_patient(patient_id: Optional[str] = None, name: Optional[str] =
         raise HTTPException(
             status_code=400, detail="Must provide either patient ID or name for search"
         )
-
     query = {}
     if patient_id:
         try:
@@ -248,11 +241,6 @@ async def search_patient(patient_id: Optional[str] = None, name: Optional[str] =
 # Route pour faire la prediction
 @app.get("/predict_patient/{patient_id}", response_class=HTMLResponse)
 async def predict_patient(request: Request, patient_id: str):
-    # # Récupérer les informations du patient pour affichage dans le formulaire
-    # patient_data = db.patients.find_one({"_id": ObjectId(patient_id)})
-    # if patient_data is not None:
-    #     patient = PatientModel(**{str(k): v for k, v in patient_data.items()})
-    #     # Trigger prediction request
     url = f"http://localhost:8000/predict/?patient_id={patient_id}"
     prediction_result = requests.post(url)
     print(f"request posted to {prediction_result}")
@@ -260,8 +248,22 @@ async def predict_patient(request: Request, patient_id: str):
         prediction_result = prediction_result.json()
         if prediction_result:
             print(f"Prediction results are {prediction_result}")
+            patient_data = db.patients.find_one({"_id": ObjectId(patient_id)})
+            if patient_data.get("scanner") and patient_data["scanner"].get("prediction") is None:
+                db.patients.update_one(
+                    {"_id": ObjectId(patient_id)},
+                    {"$set": {"scanner.prediction": {}}}
+                )
+            db.patients.update_one(
+                {"_id": ObjectId(patient_id)},
+                {"$set": {
+                    "scanner.prediction.AI_predict": prediction_result["AI_predict"],
+                    "scanner.prediction.confidence": prediction_result["confidence"],
+                    "scanner.prediction.prediction_date": prediction_result["prediction_date"]
+                }}
+            )
             return HTMLResponse(
-                content=f"<script>alert('Prediction is available');</script>"
+                content=f"<script>alert('Prediction successfull');</script><meta http-equiv='refresh' content='0;url=/full_view_patient/{patient_id}' />"
             )
         else:
             raise HTTPException(
@@ -270,20 +272,6 @@ async def predict_patient(request: Request, patient_id: str):
             )
     else:
         raise HTTPException(status_code=500, detail="Prediction request failed.")
-
-
-# else:
-#     raise HTTPException(status_code=404, detail="Patient not found")
-
-#     # Update patient data with prediction result
-
-#     return templates.TemplateResponse(
-#         "full_view_patient.html",
-#         {"request": request, "patient": patient, "prediction_result": prediction_result},
-#     )
-# else:
-#     return JSONResponse(content={"error": "Patient not found"})
-#
 
 
 def trigger_prediction(image_data: str):
