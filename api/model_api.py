@@ -101,18 +101,6 @@ async def predict(patient_id: str):
     # Get the current date and time
     current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # # Update patient data with prediction result and date
-    # db.patients.update_one(
-    #     {"_id": ObjectId(patient_id)},
-    #     {
-    #         "$set": {
-    #             "prediction.AI_predict": pred_label,
-    #             "prediction.confidence": confidence,
-    #             "prediction.prediction_date": current_date,
-    #         }
-    #     },
-    # )
-
     # Return the prediction result
     return {
         "AI_predict": pred_label,
