@@ -256,8 +256,8 @@ async def predict_patient(request: Request, patient_id: str):
             db.patients.update_one(
                 {"_id": ObjectId(patient_id)},
                 {"$set": {
-                    "scanner.prediction.AI_predict": prediction_result["AI_predict"],
-                    "scanner.prediction.confidence": prediction_result["confidence"],
+                    "scanner.prediction.AI_predict": 'Tumor' if prediction_result["AI_predict"] == "yes" else 'No tumor',
+                    "scanner.prediction.confidence": (1 - prediction_result["confidence"])*100 if prediction_result["AI_predict"] == "no" else prediction_result["confidence"]*100,
                     "scanner.prediction.prediction_date": prediction_result["prediction_date"]
                 }}
             )
