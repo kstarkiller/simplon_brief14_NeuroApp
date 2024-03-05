@@ -77,11 +77,7 @@ printButton %}
       </tr>
       <tr>
         <th>Confidence</th>
-        {% if patient.scanner.prediction.AI_predict == "no" %}
-        <td>{{ (1 - patient.scanner.prediction.confidence) * 100 }}%</td>
-        {% endif %} {% if patient.scanner.prediction.AI_predict == "yes" %}
-        <td>{{ patient.scanner.prediction.confidence * 100 }}%</td>
-        {% endif %}
+        <td>{{ patient.scanner.prediction.confidence }}%</td>
       </tr>
       <tr>
         <th>Date</th>
