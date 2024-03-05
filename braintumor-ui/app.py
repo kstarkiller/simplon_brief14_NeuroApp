@@ -150,7 +150,6 @@ async def view_patients(
 @app.get("/view_validates_patients", response_class=HTMLResponse)
 async def view_validates_patients( request: Request):
 
-    # query={'Gender':'female'}
     query={}
 
     patients = [
@@ -166,13 +165,11 @@ async def view_validates_patients( request: Request):
 @app.get("/view_waiting_patients", response_class=HTMLResponse)
 async def view_waiting_patients( request: Request):
 
-    
-    # query={'Gender':'male'}
     query = {}
 
     patients = [
         PatientViewModel(id=str(patient["_id"]), **patient)
-        for patient in db.patients.find(query).sort("confidence")
+        for patient in db.patients.find(query).sort("scanner.prediction.confidence",-1)
     ]
     return templates.TemplateResponse(
         "view_waiting_patients.html", {"request": request, "patients": patients}
@@ -304,6 +301,19 @@ def trigger_prediction(image_data: str):
     except requests.RequestException as e:
         print(f"Error: {e}")
         return None
+    
+# Route pour voir le feedback des erreurs 
+@app.get("/feed_back", response_class=HTMLResponse)
+async def feed_back(request: Request):
+    query={}
+
+    patients = [
+        PatientViewModel(id=str(patient["_id"]), **patient)
+        for patient in db.patients.find(query)
+    ]
+    return templates.TemplateResponse(
+        "view_validates_patients.html", {"request": request, "patients": patients}
+    )
 
 
 if __name__ == "__main__":
