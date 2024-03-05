@@ -34,6 +34,12 @@ printButton %}
         <td>{{ patient.age }}</td>
       </tr>
       <tr>
+        <td>ID</td>
+        <td id="patientId" data-value= "{{ patient.id }}" >
+          {{ patient.id }}
+        </td>
+      </tr>
+      <tr>
         <td>Gender</td>
         <td>{{ patient.gender }}</td>
       </tr>
@@ -86,9 +92,9 @@ printButton %}
         <td colspan="2">No prediction result available.</td>
       </tr>
       {% endif %}
-
+      
       <!-- Validation of the prediction -->
-      {% if patient.AI_predict %}
+      {% if patient.scanner and patient.scanner.prediction.AI_predict %}
       <tr>
         <th colspan="2">Validation of the Prediction</th>
       </tr>
@@ -96,8 +102,8 @@ printButton %}
         <th>Do you agree with prediction ?</th>
         <td>
           <select id="predict_check" name="predict_check">
-            <option value="yes">Yes I agree</option>
-            <option value="no">No I don't agree</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
           </select>
           <button type="button" id="checkBtn">Send check</button>
         </td>
@@ -107,20 +113,31 @@ printButton %}
         <td colspan="2">Waiting for prediction.</td>
       </tr>
       {% endif %}
-    </table>
+      </table>
 
     <script>
       const submitCheck = document.getElementById("checkBtn");
       submitCheck.addEventListener("click", () => {
-        // get the value check
-        const doc_check = document.getElementById("predict_check").value;
+        const patient_id = document.getElementById("patientId").dataset.value;
+        const predict_check = document.getElementById("predict_check").value;
+        const predict_check_date = new Date();
+
+        // Construire l'objet avec les données du formulaire
+        // let formData = {
+        //   scanner: {
+        //     prediction: {
+        //       predict_check_date: predict_check_date,
+        //     },
+        //   }
+        // };
+
         // Effectuer une requête vers l'endpoint de modification du patient
         fetch(`/check_predict_post/${patient_id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ predict_check: doc_check }),
+          body: JSON.stringify({ predict_check }),
         })
           .then((response) => response.json())
           .then((data) => {
