@@ -56,8 +56,8 @@ printButton %}
       </tr>
       {% endif %}
     </table>
-
-    <table>
+ <!-- Gérer l'entrée des prédictions -->
+    <table> 
       <caption>
         Prediction Result
       </caption>
@@ -85,16 +85,17 @@ printButton %}
       </tr>
       {% endif %}
     </table>
+    <!-- Gérer l'entrée des validations -->
     <table>
       <caption>
         Validation of the prediction
       </caption>
-      {% if patient.AI_predict %}
+      {% if patient.scanner.prediction.AI_predict %}
       <tr>
         <th>Do you agree with prediction ?:</th>
         <td><select id="predict_check" name="predict_check">
-      <option value="yes">Yes I agree</option>
-      <option value="no">No I don't agree</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
       </select>
       <button type="button" id="checkBtn">Send check</button>
 

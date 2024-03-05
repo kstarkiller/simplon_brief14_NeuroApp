@@ -55,7 +55,7 @@ printButton %}
           <td>{{ patient.scanner.prediction.AI_predict }}</td>
           <td>{{ patient.scanner.prediction.prediction_date}}</td>
           <td>{{ patient.scanner.prediction.confidence }}</td>
-          <td>{{patient.validation or "en attente de validation"}}</td>
+          <td>{{patient.scanner.prediction.predict_check or "en attente de validation"}}</td>
           <td>{{patient.scanner or "en attente de scanner"}}</td>
 
           <td>
