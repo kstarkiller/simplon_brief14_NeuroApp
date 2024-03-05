@@ -1,3 +1,6 @@
+{% from "components/navbar.html" import navbar %} {% from
+  "components/footer.html" import footer %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,29 +15,8 @@
     />
   </head>
   <body>
-    <style></style>
-    <nav>
-      <div class="NavContainer">
-        <h2 class="logo"><a href="/">NEUROGUARD 🛡️</a></h2>
 
-        <div class="LinkContainer">
-          <a href="/">Home</a>
-          <a href="/add_patient">Add New Patient</a>
-          <a href="/view_patients">View all</a>
-          <a href="/docs#">doc</a>
-          <div class="searchbarContainer">
-            <input
-              id="search-input"
-              type="text"
-              placeholder="Enter Patient name"
-            />
-            <button id="search-button" class="search-button">
-              <img src="../static/src/search_icon.svg" class="button-image" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
+    {{ navbar() }}
 
     <table border="1">
       <caption>
