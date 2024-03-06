@@ -41,7 +41,7 @@
 
       <tbody>
         {% for patient in patients %}  
-        {% if patient.validation != None %}
+        {% if patient.validation in ['yes','no'] %}
         <tr>
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>

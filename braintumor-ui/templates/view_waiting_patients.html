@@ -44,7 +44,7 @@
      
         
         
-        {% if patient.validation == None %}
+        {% if patient.validation not in ['yes','no'] %}
         <tr>
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
