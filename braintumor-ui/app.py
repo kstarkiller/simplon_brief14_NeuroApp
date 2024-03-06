@@ -34,6 +34,9 @@ class PredictionModel(BaseModel):
     @validator('confidence')
     def validate_confidence(cls, v):
         return round(v, 2) if v is not None else v
+    
+    def model_dump(self):
+        return self.__dict__
 
 # Modèle Pydantic pour le scanner
 class ScannerModel(BaseModel):
@@ -253,8 +256,8 @@ async def predict_patient(request: Request, patient_id: str):
             db.patients.update_one(
                 {"_id": ObjectId(patient_id)},
                 {"$set": {
-                    "scanner.prediction.AI_predict": prediction_result["AI_predict"],
-                    "scanner.prediction.confidence": prediction_result["confidence"],
+                    "scanner.prediction.AI_predict": 'Tumor' if prediction_result["AI_predict"] == "yes" else 'No tumor',
+                    "scanner.prediction.confidence": (1 - prediction_result["confidence"])*100 if prediction_result["AI_predict"] == "no" else prediction_result["confidence"]*100,
                     "scanner.prediction.prediction_date": prediction_result["prediction_date"]
                 }}
             )
@@ -274,17 +277,29 @@ async def predict_patient(request: Request, patient_id: str):
 def check_predict(request: Request):
     return templates.TemplateResponse("view_full_patient.html", {"request": request})
 
-# to update mongoDB with new datas edited
+# Route pour faire le check de la prediction
 @app.post("/check_predict_post/{patient_id}")
-async def check_predict_post(patient_id: str, patient: PatientViewModel):
-    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    updated_fields = {k: v for k, v in patient.model_dump().items()}
-    # Update patient data with check result and date
-    db.patients.update_one({"_id": ObjectId(patient_id)}, {"$set": updated_fields,
-                                                           "predict_check_date": current_date})
+async def check_predict_post(patient_id: str, patient: PredictionModel):
+    try:
+        current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Return the page
-    return RedirectResponse(url="/view_patients")
+        # Update patient data with check result and date
+        predict_check = patient.model_dump().get("predict_check")
+
+        # Update patient data with check result and date
+        db.patients.update_one(
+            {"_id": ObjectId(patient_id)},
+            {"$set": {
+                "scanner.prediction.predict_check": predict_check,
+                "scanner.prediction.predict_check_date": current_date
+            }}
+        )
+
+        # Return the page
+        return RedirectResponse(url="/view_patients")
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def trigger_prediction(image_data: str):

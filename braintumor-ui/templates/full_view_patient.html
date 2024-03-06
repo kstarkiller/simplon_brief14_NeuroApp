@@ -18,9 +18,10 @@ printButton %}
 
     <table id="tab">
       <caption>
-        <h1>Patient Information</h1>
+        <h1>Patient Information and Prediction Results</h1>
       </caption>
 
+      <!-- Patient Information -->
       <tr>
         <th colspan="2">Patient Information</th>
       </tr>
@@ -33,9 +34,17 @@ printButton %}
         <td>{{ patient.age }}</td>
       </tr>
       <tr>
+        <td>ID</td>
+        <td id="patientId" data-value= "{{ patient.id }}" >
+          {{ patient.id }}
+        </td>
+      </tr>
+      <tr>
         <td>Gender</td>
         <td>{{ patient.gender }}</td>
       </tr>
+
+      <!-- Scanner Information -->
       {% if patient.scanner and patient.scanner.scanner_img %}
       <tr>
         <td>Scanner File Name</td>
@@ -43,7 +52,7 @@ printButton %}
       </tr>
       <tr>
         <td>Scanner Image</td>
-        <td>
+        <td class="scannerContainer">
           <img
             src="data:image/png;base64,{{ patient.scanner.scanner_img }}"
             alt="Scanner Image"
@@ -55,25 +64,20 @@ printButton %}
         <td>No image added yet</td>
       </tr>
       {% endif %}
-    </table>
- <!-- Gérer l'entrée des prédictions -->
-    <table> 
-      <caption>
-        Prediction Result
-      </caption>
-      {% if patient.scanner and patient.scanner.prediction and patient.scanner.prediction.AI_predict %}
+
+      <!-- Prediction Result -->
+      {% if patient.scanner and patient.scanner.prediction and
+      patient.scanner.prediction.AI_predict %}
+      <tr>
+        <th colspan="2">Prediction Result</th>
+      </tr>
       <tr>
         <th>Label</th>
         <td>{{ patient.scanner.prediction.AI_predict }}</td>
       </tr>
       <tr>
         <th>Confidence</th>
-        {% if patient.scanner.prediction.AI_predict == "no" %}
-        <td>{{ (1 - patient.scanner.prediction.confidence) * 100 }}%</td>
-        {% endif %}
-        {% if patient.scanner.prediction.AI_predict == "yes" %}
-        <td>{{ patient.scanner.prediction.confidence * 100 }}%</td>
-        {% endif %}
+        <td>{{ patient.scanner.prediction.confidence }}%</td>
       </tr>
       <tr>
         <th>Date</th>
@@ -84,50 +88,61 @@ printButton %}
         <td colspan="2">No prediction result available.</td>
       </tr>
       {% endif %}
-    </table>
-    <!-- Gérer l'entrée des validations -->
-    <table>
-      <caption>
-        Validation of the prediction
-      </caption>
-      {% if patient.scanner.prediction.AI_predict %}
+      
+      <!-- Validation of the prediction -->
+      {% if patient.scanner and patient.scanner.prediction.AI_predict %}
       <tr>
-        <th>Do you agree with prediction ?:</th>
-        <td><select id="predict_check" name="predict_check">
-      <option value="yes">Yes</option>
-      <option value="no">No</option>
-      </select>
-      <button type="button" id="checkBtn">Send check</button>
-
-      </td>
+        <th colspan="2">Validation of the Prediction</th>
       </tr>
-          {% else %}
+      <tr>
+        <th>Do you agree with prediction ?</th>
+        <td>
+          <select id="predict_check" name="predict_check">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+          <button type="button" id="checkBtn">Send check</button>
+        </td>
+      </tr>
+      {% else %}
       <tr>
         <td colspan="2">Waiting for prediction.</td>
       </tr>
       {% endif %}
-    </table>
+      </table>
+
     <script>
-      const submitCheck = document.getElementById('checkBtn');
-      submitCheck.addEventListener('click', () => {
-          // get the value check
-          const doc_check = document.getElementById("predict_check").value;
-          // Effectuer une requête vers l'endpoint de modification du patient
-          fetch(`/check_predict_post/${patient_id}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ predict_check: doc_check })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Rediriger vers la vue des patients après l'édition
-                    window.location.href = '/view_patients';
-                })
-                .catch(error => console.error('Error:', error));
-      });  
-  </script>
+      const submitCheck = document.getElementById("checkBtn");
+      submitCheck.addEventListener("click", () => {
+        const patient_id = document.getElementById("patientId").dataset.value;
+        const predict_check = document.getElementById("predict_check").value;
+        const predict_check_date = new Date();
+
+        // Construire l'objet avec les données du formulaire
+        // let formData = {
+        //   scanner: {
+        //     prediction: {
+        //       predict_check_date: predict_check_date,
+        //     },
+        //   }
+        // };
+
+        // Effectuer une requête vers l'endpoint de modification du patient
+        fetch(`/check_predict_post/${patient_id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ predict_check }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Rediriger vers la vue des patients après l'édition
+            window.location.href = "/view_patients";
+          })
+          .catch((error) => console.error("Error:", error));
+      });
+    </script>
     {{ printButton() }} {{ footer() }}
   </body>
 </html>

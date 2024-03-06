@@ -188,3 +188,12 @@ td :any-link {
 .btnContainerFP > button > svg:hover {
   border: solid 1px black;
 }
+
+table > tbody img {
+  outline: 2px solid black;
+}
+.scannerContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
