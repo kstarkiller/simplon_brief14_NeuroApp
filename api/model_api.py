@@ -16,8 +16,13 @@ from hidden import MONGO_URI, MLFLOW_RUN
 app = FastAPI()
 
 # Load the ML model
-mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
 model = mlflow.pyfunc.load_model(MLFLOW_RUN)
+
+# Load model save like a keras 
+# import tensorflow as tf
+# from tensorflow import keras
+# model=tf.keras.models.load_model("model_neuro_2")
 
 
 # Define function normalize :
@@ -107,6 +112,7 @@ async def predict(patient_id: str):
         "confidence": confidence,
         "prediction_date": current_date,
     }
+
 
 
 # Run the API with uvicorn

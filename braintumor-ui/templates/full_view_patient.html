@@ -96,8 +96,8 @@ printButton %}
         <th>Do you agree with AI prediction ?</th>
         <td>
           <select id="predict_check" name="predict_check">
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
           </select>
           <button type="button" id="checkBtn">Send check</button>
         </td>
@@ -125,7 +125,7 @@ printButton %}
           alert("Please provide a comment for disagreement.");
           return;
         }
-
+        
         // Effectuer une requête vers l'endpoint de modification du patient
         fetch(`/check_predict_post/${patient_id}`, {
           method: "POST",
