@@ -39,11 +39,7 @@
 
       <tbody>
         {% for patient in patients %}  
-<<<<<<< HEAD
-        {% if patient.validation in ['yes','no'] %}
-=======
         {% if patient.scanner and patient.scanner.prediction.predict_check == "yes" %}
->>>>>>> main
         <tr>
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
