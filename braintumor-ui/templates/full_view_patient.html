@@ -35,9 +35,7 @@ printButton %}
       </tr>
       <tr>
         <td>ID</td>
-        <td id="patientId" data-value= "{{ patient.id }}" >
-          {{ patient.id }}
-        </td>
+        <td id="patientId" data-value="{{ patient.id }}">{{ patient.id }}</td>
       </tr>
       <tr>
         <td>Gender</td>
@@ -88,14 +86,14 @@ printButton %}
         <td colspan="2">No prediction result available.</td>
       </tr>
       {% endif %}
-      
+
       <!-- Validation of the prediction -->
       {% if patient.scanner and patient.scanner.prediction.AI_predict %}
       <tr>
         <th colspan="2">Validation of the Prediction</th>
       </tr>
       <tr>
-        <th>Do you agree with prediction ?</th>
+        <th>Do you agree with AI prediction ?</th>
         <td>
           <select id="predict_check" name="predict_check">
             <option value="Yes">Yes</option>
@@ -104,27 +102,37 @@ printButton %}
           <button type="button" id="checkBtn">Send check</button>
         </td>
       </tr>
+      <tr id="commentBox" style="display: none">
+        <th>Comment:</th>
+        <td><textarea id="comment" name="comment"></textarea></td>
+      </tr>
       {% else %}
       <tr>
         <td colspan="2">Waiting for prediction.</td>
       </tr>
       {% endif %}
-      </table>
+    </table>
 
     <script>
       const submitCheck = document.getElementById("checkBtn");
       submitCheck.addEventListener("click", () => {
-        const patient_id = document.getElementById("patientId").dataset.value;
         const predict_check = document.getElementById("predict_check").value;
+        const patient_id = document.getElementById("patientId").dataset.value;
         const predict_check_date = new Date();
+        const comment = document.getElementById("comment").value;
 
+        if (predict_check === "no" && comment.trim() === "") {
+          alert("Please provide a comment for disagreement.");
+          return;
+        }
+        
         // Effectuer une requête vers l'endpoint de modification du patient
         fetch(`/check_predict_post/${patient_id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ predict_check }),
+          body: JSON.stringify({ predict_check, predict_check_date, comment }),
         })
           .then((response) => response.json())
           .then((data) => {
@@ -132,6 +140,18 @@ printButton %}
             window.location.href = "/view_patients";
           })
           .catch((error) => console.error("Error:", error));
+      });
+
+      // Show or hide the comment box based on user selection
+      const predictCheckSelect = document.getElementById("predict_check");
+      predictCheckSelect.addEventListener("change", () => {
+        const selectedOption = predictCheckSelect.value;
+        const commentBox = document.getElementById("commentBox");
+        if (selectedOption === "no") {
+          commentBox.style.display = "table-row";
+        } else {
+          commentBox.style.display = "none";
+        }
       });
     </script>
     {{ printButton() }} {{ footer() }}
