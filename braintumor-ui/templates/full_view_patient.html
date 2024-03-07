@@ -98,8 +98,8 @@ printButton %}
         <th>Do you agree with prediction ?</th>
         <td>
           <select id="predict_check" name="predict_check">
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
           </select>
           <button type="button" id="checkBtn">Send check</button>
         </td>
@@ -117,15 +117,6 @@ printButton %}
         const patient_id = document.getElementById("patientId").dataset.value;
         const predict_check = document.getElementById("predict_check").value;
         const predict_check_date = new Date();
-
-        // Construire l'objet avec les données du formulaire
-        // let formData = {
-        //   scanner: {
-        //     prediction: {
-        //       predict_check_date: predict_check_date,
-        //     },
-        //   }
-        // };
 
         // Effectuer une requête vers l'endpoint de modification du patient
         fetch(`/check_predict_post/${patient_id}`, {

@@ -19,10 +19,6 @@
     {{ navbar() }}
 
     <table border="1">
-      <caption>
-        <a href="{{ url_for('add_patient') }}">add_patient</a>
-        <hr style="margin: 15px; background-color: transparent; border: none" />
-      </caption>
       <thead>
        
         <tr>
@@ -39,14 +35,18 @@
 
       <tbody>
         {% for patient in patients %}  
-        {% if patient.scanner and patient.scanner.prediction.predict_check == "yes" %}
+        {% if patient.scanner and patient.scanner.prediction.predict_check %}
         <tr>
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
           <td>{{ patient.gender }}</td>
           <td>{{ patient.scanner.prediction.AI_predict }}</td>
-          <td>{{ patient.scanner.prediction.confidence }}</td>
-          <td>{{ patient.scanner.prediction.predict_check }}</td>
+          <td>{{ patient.scanner.prediction.confidence }}%</td>
+          {% if patient.scanner.prediction.predict_check == "No" %}
+          <td style="color : red">{{ patient.scanner.prediction.predict_check }}</td>
+          {% else %}
+          <td style= "color: green">{{ patient.scanner.prediction.predict_check }}</td>
+          {% endif %}
           <td>{{ patient.scanner.prediction.predict_check_date }}</td>
 
           <td>
