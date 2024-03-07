@@ -240,7 +240,7 @@ async def search_patient(patient_id: Optional[str] = None, name: Optional[str] =
 
 # Route pour faire la prediction
 @app.get("/predict_patient/{patient_id}", response_class=HTMLResponse)
-async def predict_patient(requests: Request, patient_id: str):
+async def predict_patient(request: Request, patient_id: str):
     url = f"http://localhost:8000/predict/?patient_id={patient_id}"
     prediction_result = requests.post(url)
     if prediction_result.status_code == 200:
