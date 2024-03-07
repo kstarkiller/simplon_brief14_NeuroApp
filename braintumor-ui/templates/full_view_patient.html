@@ -48,7 +48,7 @@ printButton %}
       {% if patient.scanner and patient.scanner.scanner_img %}
       <tr>
         <td>Scanner File Name</td>
-        <td>{{ patient.scanner.scanner_name }}</td>
+        <td id = 'scannerName'>{{ patient.scanner.scanner_name }}</td>
       </tr>
       <tr>
         <td>Scanner Image</td>
@@ -73,7 +73,7 @@ printButton %}
       </tr>
       <tr>
         <th>Label</th>
-        <td>{{ patient.scanner.prediction.AI_predict }}</td>
+        <td id = 'AI_predict'>{{ patient.scanner.prediction.AI_predict }}</td>
       </tr>
       <tr>
         <th>Confidence</th>
@@ -117,6 +117,22 @@ printButton %}
         const patient_id = document.getElementById("patientId").dataset.value;
         const predict_check = document.getElementById("predict_check").value;
         const predict_check_date = new Date();
+        const scanner_name = document.getElementById("scannerName").innerText;
+        const AI_predict = document.getElementById("AI_predict").innerText;
+
+        let data = {'patient_id': patient_id, 'scanner':scanner_name, 'prediction':AI_predict, 'expert_opinion':predict_check};
+        console.log(data);
+
+        // Effectuer une requête vers l'endpoint de feedback
+        if (predict_check === "No") {
+          fetch("/feed_back", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+        }
 
         // Effectuer une requête vers l'endpoint de modification du patient
         fetch(`/check_predict_post/${patient_id}`, {
