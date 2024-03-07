@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+tumor_detection_model/brain_tumor_detector.keras
+tumor_detection_model/data/
+mlruns/
+mlartifacts/
+
+
 # CSV
 *.csv
 
