@@ -30,6 +30,7 @@ class PredictionModel(BaseModel):
     prediction_date: Optional[str] = None
     predict_check: Optional[str] = None
     predict_check_date: Optional[str] = None
+    comment: Optional[str] = None
 
     @validator('confidence')
     def validate_confidence(cls, v):
@@ -242,11 +243,9 @@ async def search_patient(patient_id: Optional[str] = None, name: Optional[str] =
 async def predict_patient(requests: Request, patient_id: str):
     url = f"http://localhost:8000/predict/?patient_id={patient_id}"
     prediction_result = requests.post(url)
-    print(f"request posted to {prediction_result}")
     if prediction_result.status_code == 200:
         prediction_result = prediction_result.json()
         if prediction_result:
-            print(f"Prediction results are {prediction_result}")
             patient_data = db.patients.find_one({"_id": ObjectId(patient_id)})
             if patient_data.get("scanner") and patient_data["scanner"].get("prediction") is None:
                 db.patients.update_one(
@@ -278,14 +277,14 @@ def check_predict(request: Request):
     return templates.TemplateResponse("view_full_patient.html", {"request": request})
 
 # Route pour faire le check de la prediction
+
 @app.post("/check_predict_post/{patient_id}")
 async def check_predict_post(patient_id: str, patient: PredictionModel):
     try:
         current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
         # Update patient data with check result and date
         predict_check = patient.model_dump().get("predict_check")
-
+        comment = patient.model_dump().get("comment")
         # Update patient data with check result and date
         db.patients.update_one(
             {"_id": ObjectId(patient_id)},
@@ -294,6 +293,15 @@ async def check_predict_post(patient_id: str, patient: PredictionModel):
                 "scanner.prediction.predict_check_date": current_date
             }}
         )
+        # If 'no' is selected, also update the comment
+        if predict_check == "no":
+            db.patients.update_one(
+                {"_id": ObjectId(patient_id)},
+                {"$set": {
+                    "scanner.prediction.comment": comment
+                }}
+            )
+
 
         # Return the page
         return RedirectResponse(url="/view_patients")
