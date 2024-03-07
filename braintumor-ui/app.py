@@ -240,7 +240,7 @@ async def search_patient(patient_id: Optional[str] = None, name: Optional[str] =
 
 # Route pour faire la prediction
 @app.get("/predict_patient/{patient_id}", response_class=HTMLResponse)
-async def predict_patient(request: Request, patient_id: str):
+async def predict_patient(requests: Request, patient_id: str):
     url = f"http://localhost:8000/predict/?patient_id={patient_id}"
     prediction_result = requests.post(url)
     if prediction_result.status_code == 200:
@@ -324,19 +324,18 @@ def trigger_prediction(image_data: str):
     except requests.RequestException as e:
         print(f"Error: {e}")
         return None
-    
-# Route pour voir le feedback des erreurs 
-@app.get("/feed_back", response_class=HTMLResponse)
-async def feed_back(request: Request):
-    query={}
 
-    patients = [
-        PatientViewModel(id=str(patient["_id"]), **patient)
-        for patient in db.patients.find(query)
-    ]
-    return templates.TemplateResponse(
-        "view_validates_patients.html", {"request": request, "patients": patients}
-    )
+# Route pour voir le feedback des erreurs 
+@app.post("/feed_back")
+async def feed_back(request: Request):
+    data = await request.json()
+    url = "http://localhost:8000/feedback/"
+
+    requests.post(url, json=data)
+
+    # return templates.TemplateResponse(
+    #     "view_validates_patients.html", {"request": request}
+    # )
 
 
 if __name__ == "__main__":

@@ -7,6 +7,8 @@ import cv2
 import base64
 from bson import ObjectId
 from datetime import datetime
+from pydantic import BaseModel
+from typing import Optional
 
 import sys
 import os
@@ -113,6 +115,23 @@ async def predict(patient_id: str):
         "prediction_date": current_date,
     }
 
+class Feedback(BaseModel):
+    patient_id: Optional[str] = None
+    scanner: Optional[str] = None
+    prediction: Optional[str] = None
+    expert_opinion: Optional[str] = None
+
+@app.post("/feedback/")
+def feedback(feedback_data: Feedback):
+    print('\n')
+    for key, value in feedback_data.dict().items():
+        if value is None:
+            raise HTTPException(
+                status_code=400, detail=f"Missing value for {key}."
+            )
+        else :
+            print(f"{key} : {value}")
+    print('\n')
 
 
 # Run the API with uvicorn
