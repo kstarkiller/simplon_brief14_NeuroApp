@@ -44,7 +44,7 @@
      
         
         
-        {% if patient.validation not in ['yes','no'] %}
+        {% if patient.scanner.prediction.predict_check not in ['yes','no'] %}
         <tr>
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>

@@ -149,6 +149,37 @@ async def view_patients(
         "view_patients.html", {"request": request, "patients": patients}
     )
 
+
+# Route pour visualiser tous les patients avec tumeur confirmé
+@app.get("/tumor", response_class=HTMLResponse)
+async def view_validates_patients( request: Request):
+
+    query={}
+
+    patients = [
+        PatientViewModel(id=str(patient["_id"]), **patient)
+        for patient in db.patients.find(query)
+    ]
+    return templates.TemplateResponse(
+        "tumor.html", {"request": request, "patients": patients}
+    )
+
+
+# Route pour visualiser tous les patients confirmé sans tumeur 
+@app.get("/no_tumor", response_class=HTMLResponse)
+async def view_validates_patients( request: Request):
+
+    query={}
+
+    patients = [
+        PatientViewModel(id=str(patient["_id"]), **patient)
+        for patient in db.patients.find(query)
+    ]
+    return templates.TemplateResponse(
+        "no_tumor.html", {"request": request, "patients": patients}
+    )
+
+
 # Route pour visualiser tous les patients validés
 @app.get("/view_validates_patients", response_class=HTMLResponse)
 async def view_validates_patients( request: Request):
@@ -172,7 +203,7 @@ async def view_waiting_patients( request: Request):
 
     patients = [
         PatientViewModel(id=str(patient["_id"]), **patient)
-        for patient in db.patients.find(query).sort("scanner.prediction.confidence",-1)
+        for patient in db.patients.find(query).sort("scanner.prediction.raw_confidence",-1)
     ]
     return templates.TemplateResponse(
         "view_waiting_patients.html", {"request": request, "patients": patients}
