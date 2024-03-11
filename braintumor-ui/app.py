@@ -27,9 +27,11 @@ db = client["braintumor"]
 class PredictionModel(BaseModel):
     AI_predict: Optional[str] = None
     confidence: Optional[float] = None
+    raw_confidence: Optional[float] = None
     prediction_date: Optional[str] = None
     predict_check: Optional[str] = None
     predict_check_date: Optional[str] = None
+    comment: Optional[str] = None
 
     @validator('confidence')
     def validate_confidence(cls, v):
@@ -273,11 +275,9 @@ async def search_patient(patient_id: Optional[str] = None, name: Optional[str] =
 async def predict_patient(request: Request, patient_id: str):
     url = f"http://localhost:8000/predict/?patient_id={patient_id}"
     prediction_result = requests.post(url)
-    print(f"request posted to {prediction_result}")
     if prediction_result.status_code == 200:
         prediction_result = prediction_result.json()
         if prediction_result:
-            print(f"Prediction results are {prediction_result}")
             patient_data = db.patients.find_one({"_id": ObjectId(patient_id)})
             if patient_data.get("scanner") and patient_data["scanner"].get("prediction") is None:
                 db.patients.update_one(
@@ -289,6 +289,7 @@ async def predict_patient(request: Request, patient_id: str):
                 {"$set": {
                     "scanner.prediction.AI_predict": 'Tumor' if prediction_result["AI_predict"] == "yes" else 'No tumor',
                     "scanner.prediction.confidence": (1 - prediction_result["confidence"])*100 if prediction_result["AI_predict"] == "no" else prediction_result["confidence"]*100,
+                    "scanner.prediction.raw_confidence": prediction_result["confidence"],
                     "scanner.prediction.prediction_date": prediction_result["prediction_date"]
                 }}
             )
@@ -309,14 +310,14 @@ def check_predict(request: Request):
     return templates.TemplateResponse("view_full_patient.html", {"request": request})
 
 # Route pour faire le check de la prediction
+
 @app.post("/check_predict_post/{patient_id}")
 async def check_predict_post(patient_id: str, patient: PredictionModel):
     try:
         current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
         # Update patient data with check result and date
         predict_check = patient.model_dump().get("predict_check")
-
+        comment = patient.model_dump().get("comment")
         # Update patient data with check result and date
         db.patients.update_one(
             {"_id": ObjectId(patient_id)},
@@ -325,6 +326,15 @@ async def check_predict_post(patient_id: str, patient: PredictionModel):
                 "scanner.prediction.predict_check_date": current_date
             }}
         )
+        # If 'no' is selected, also update the comment
+        if predict_check == "no":
+            db.patients.update_one(
+                {"_id": ObjectId(patient_id)},
+                {"$set": {
+                    "scanner.prediction.comment": comment
+                }}
+            )
+
 
         # Return the page
         return RedirectResponse(url="/view_patients")
@@ -347,19 +357,14 @@ def trigger_prediction(image_data: str):
     except requests.RequestException as e:
         print(f"Error: {e}")
         return None
-    
-# Route pour voir le feedback des erreurs 
-@app.get("/feed_back", response_class=HTMLResponse)
-async def feed_back(request: Request):
-    query={}
 
-    patients = [
-        PatientViewModel(id=str(patient["_id"]), **patient)
-        for patient in db.patients.find(query)
-    ]
-    return templates.TemplateResponse(
-        "view_validates_patients.html", {"request": request, "patients": patients}
-    )
+# Route pour voir le feedback des erreurs 
+@app.post("/feed_back")
+async def feed_back(request: Request):
+    data = await request.json()
+    url = "http://localhost:8000/feedback/"
+
+    requests.post(url, json=data)
 
 
 if __name__ == "__main__":

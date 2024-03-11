@@ -17,56 +17,51 @@
   <body>
     {{ navbar() }}
 
-    <table border="1">
-      <caption>
-        <a href="{{ url_for('add_patient') }}"> add_patient  </a>
-        <hr style="margin: 15px; background-color: transparent; border: none" />
-      </caption>
+    <table border="1" id="tab">
       <thead>
+        
         <tr>
           <th>Name</th>
           <th>Age</th>
           <th>Gender</th>
-          <th>ID</th>
+          <th>Scan</th>
           <th>Prediction</th>
-          <th>Date</th>
           <th>Confidence</th>
+          <th>Validation</th>
+
           <th>Edit</th>
+
           <th>Predict</th>
-          <th>View patient</th>
         </tr>
       </thead>
 
       <tbody>
-        
-    
-        {% for patient in patients %} 
-     
-        
-        
-        {% if patient.scanner.prediction.predict_check not in ['yes','no'] %}
+
+        {% for patient in patients %}
+        <!-- If the patient has a prediction but no validation -->
+        {% if patient.scanner.scanner_img and patient.scanner.prediction.AI_predict and not patient.scanner.prediction.predict_check %}
+
         <tr>
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
           <td>{{ patient.gender }}</td>
-          <td>{{ patient.id }}</td>
+          <td>Yes</td>
           <td>{{ patient.scanner.prediction.AI_predict }}</td>
-          <td>{{ patient.scanner.prediction.prediction_date }}</td>
-          <td>{{ patient.scanner.prediction.confidence }}</td>
-
+          <td>{{ patient.scanner.prediction.confidence }}%</td>
+          <td>Waiting validation</td>
           <td>
             <a href="{{ url_for('edit_patient', patient_id=patient.id) }}"
               >Edit</a
             >
           </td>
           <td>
-            <a href="{{ url_for('predict_patient', patient_id=patient.id) }}"
+           <a href="{{ url_for('predict_patient', patient_id=patient.id) }}"
               >Predict</a
             >
           </td>
           <td>
             <a href="{{ url_for('full_view_patient', patient_id=patient.id) }}"
-              >View full info</a
+              >View patient</a
             >
           </td>
         </tr>

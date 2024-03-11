@@ -7,11 +7,17 @@ import cv2
 import base64
 from bson import ObjectId
 from datetime import datetime
+from pydantic import BaseModel
+from typing import Optional
 
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from hidden import MONGO_URI, MLFLOW_RUN
+
+# Retrieve MLFLOW_RUN and MONGO_URI from the docker environment
+# MLFLOW_RUN = os.environ.get("MLFLOW_RUN")
+# MONGO_URI = os.environ.get("MONGO_URI")
 
 app = FastAPI()
 
@@ -113,6 +119,23 @@ async def predict(patient_id: str):
         "prediction_date": current_date,
     }
 
+class Feedback(BaseModel):
+    patient_id: Optional[str] = None
+    # scanner: Optional[str] = None
+    prediction: Optional[str] = None
+    expert_opinion: Optional[str] = None
+
+@app.post("/feedback/")
+def feedback(feedback_data: Feedback):
+    print('\n')
+    for key, value in feedback_data.dict().items():
+        if value is None:
+            raise HTTPException(
+                status_code=400, detail=f"Missing value for {key}."
+            )
+        else :
+            print(f"{key} : {value}")
+    print('\n')
 
 @app.post("/feed_back")
 

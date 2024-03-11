@@ -18,12 +18,7 @@ printButton %}
     {{ navbar() }}
 
     <table border="1" id="tab">
-      <caption>
-        <a href="{{ url_for('add_patient') }}">Add Patient</a>
-        <hr style="margin: 15px; background-color: transparent; border: none" />
-      </caption>
       <thead>
-        
         <tr>
           <th>Name</th>
           <th>Age</th>
@@ -48,13 +43,23 @@ printButton %}
           <td>{{ patient.gender }}</td>
           {% if patient.scanner and patient.scanner.scanner_img %}
           <td>Yes</td>
-          <td>{{ patient.scanner.prediction.AI_predict or "Waiting prediction" }}</td>
+          <td>
+            {{ patient.scanner.prediction.AI_predict or "Waiting prediction" }}
+          </td>
           {% if patient.scanner.prediction.confidence %}
           <td>{{ patient.scanner.prediction.confidence }}%</td>
           {% else %}
-          <td>{{ patient.scanner.prediction.confidence or "Waiting prediction" }}</td>
+          <td>
+            {{ patient.scanner.prediction.confidence or "Waiting prediction" }}
+          </td>
           {% endif %}
-          <td>{{ patient.scanner.prediction.predict_check or "Waiting validation" }}</td>
+          {% if patient.scanner.prediction.predict_check == "No" %}
+          <td style="color : red">{{ patient.scanner.prediction.predict_check }}</td>
+          {% elif patient.scanner.prediction.predict_check == "Yes" %}
+          <td style= "color: green">{{ patient.scanner.prediction.predict_check }}</td>
+          {% else %}
+          <td>Waiting validation</td>
+          {% endif %}
           {% else %}
           <td>Waiting scanner</td>
           <td>Waiting prediction</td>
@@ -67,7 +72,7 @@ printButton %}
             >
           </td>
           <td>
-           <a href="{{ url_for('predict_patient', patient_id=patient.id) }}"
+            <a href="{{ url_for('predict_patient', patient_id=patient.id) }}"
               >Predict</a
             >
           </td>
@@ -115,6 +120,5 @@ printButton %}
     </div>
 
     {{ footer() }} {{ printButton() }}
-
   </body>
 </html>
