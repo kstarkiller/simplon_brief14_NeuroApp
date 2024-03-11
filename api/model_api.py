@@ -121,7 +121,7 @@ async def predict(patient_id: str):
 
 class Feedback(BaseModel):
     patient_id: Optional[str] = None
-    scanner: Optional[str] = None
+    # scanner: Optional[str] = None
     prediction: Optional[str] = None
     expert_opinion: Optional[str] = None
 

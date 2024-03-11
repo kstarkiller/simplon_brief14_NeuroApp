@@ -333,10 +333,6 @@ async def feed_back(request: Request):
 
     requests.post(url, json=data)
 
-    # return templates.TemplateResponse(
-    #     "view_validates_patients.html", {"request": request}
-    # )
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=3000)
