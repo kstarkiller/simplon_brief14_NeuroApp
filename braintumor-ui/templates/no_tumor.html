@@ -31,7 +31,7 @@
           <th>Gender</th>
           <th>Prediction</th>
           <th>Confidence</th>
-          <th>Validated ?</th>
+          <th>Diagnostique</th>
           <th>Validation Date</th>
           <th>Edit</th>
         </tr>
@@ -41,16 +41,15 @@
         {% for patient in patients %}  
         {% if patient.scanner and
           patient.scanner.prediction and
-          ((patient.scanner.prediction.AI_predict=="no" and patient.scanner.prediction.predict_check == "yes" %) or
-          ( patient.scanner.prediction.AI_predict=="yes" and patient.scanner.prediction.predict_check == "no" %) )
-        }
+          ((patient.scanner.prediction.AI_predict=="no" and patient.scanner.prediction.predict_check == "yes" ) or
+          ( patient.scanner.prediction.AI_predict=="yes" and patient.scanner.prediction.predict_check == "no" ) )%}
         <tr>
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
           <td>{{ patient.gender }}</td>
           <td>{{ patient.scanner.prediction.AI_predict }}</td>
           <td>{{ patient.scanner.prediction.confidence }}</td>
-          <td>{{ patient.scanner.prediction.predict_check }}</td>
+          <td>Tumor</td>
           <td>{{ patient.scanner.prediction.predict_check_date }}</td>
 
           <td>
