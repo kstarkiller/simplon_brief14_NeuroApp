@@ -1,21 +1,22 @@
+from datetime import datetime
+import requests
+import binascii
+import base64
+from typing import Optional
+from pydantic import BaseModel, validator
+from bson import ObjectId
+from pymongo import MongoClient
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, Request, Form, HTTPException
+import uvicorn
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from hidden import MONGO_URI
+sys.path.append(os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../..')))
+from hidden import MONGO_URI, MLFLOW_RUN, DEV_MODE
 
-import uvicorn
-from fastapi import FastAPI, Request, Form, HTTPException
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from pymongo import MongoClient
-from bson import ObjectId
-from pydantic import BaseModel, validator
-from typing import Optional
-import base64
-import binascii
-import requests
-from datetime import datetime  
 
 app = FastAPI()
 
@@ -24,6 +25,8 @@ client = MongoClient(MONGO_URI)
 db = client["braintumor"]
 
 # Modèle Pydantic pour les prédictions (à adapter selon vos besoins)
+
+
 class PredictionModel(BaseModel):
     AI_predict: Optional[str] = None
     confidence: Optional[float] = None
@@ -35,11 +38,13 @@ class PredictionModel(BaseModel):
     @validator('confidence')
     def validate_confidence(cls, v):
         return round(v, 2) if v is not None else v
-    
+
     def model_dump(self):
         return self.__dict__
 
 # Modèle Pydantic pour le scanner
+
+
 class ScannerModel(BaseModel):
     scanner_img: Optional[str] = Form(None, description="Base64 encoded image")
     scanner_name: Optional[str] = Form(None)
@@ -55,6 +60,8 @@ class ScannerModel(BaseModel):
         return None
 
 # Modèles Pydantic pour l'ajout d'un patient
+
+
 class PatientModel(BaseModel):
     name: str = Form(...)
     age: int = Form(...)
@@ -65,6 +72,8 @@ class PatientModel(BaseModel):
         return self.__dict__
 
 # Modèles Pydantic pour la modification du patient
+
+
 class PatientUpdateModel(BaseModel):
     name: Optional[str] = Form(None)
     age: Optional[int] = Form(None)
@@ -75,6 +84,8 @@ class PatientUpdateModel(BaseModel):
         return self.__dict__
 
 # Modèles Pydantic pour la visualisation des patients
+
+
 class PatientViewModel(BaseModel):
     name: str
     age: int
@@ -102,6 +113,7 @@ async def read_index(request: Request):
 def add_patient(request: Request):
     return templates.TemplateResponse("add_patient.html", {"request": request})
 
+
 @app.post("/add_patient")
 async def add_patient_post(patient: PatientModel):
     # Insérer le patient dans la base de données
@@ -112,6 +124,8 @@ async def add_patient_post(patient: PatientModel):
     return JSONResponse(content={"redirect_url": "/view_patients"})
 
 # endpoint full_view_patient
+
+
 @app.get("/full_view_patient/{patient_id}", response_class=HTMLResponse)
 async def full_view_patient(request: Request, patient_id: str):
     # Retrieve patient information from the database
@@ -120,18 +134,20 @@ async def full_view_patient(request: Request, patient_id: str):
         # Prepare the data to pass to the HTML template
         patient = PatientViewModel(id=str(patient_data["_id"]), **patient_data)
         return templates.TemplateResponse(
-            "full_view_patient.html", 
+            "full_view_patient.html",
             {"request": request, "patient": patient, "patient_id": patient_id}
         )
     else:
         raise HTTPException(status_code=404, detail="Patient not found")
 
 # Route pour visualiser tous les patients
+
+
 @app.get("/view_patients", response_class=HTMLResponse)
 async def view_patients(
-    request: Request,
-    name: Optional[str] = None,
-    patient_id: Optional[str] = None):
+        request: Request,
+        name: Optional[str] = None,
+        patient_id: Optional[str] = None):
     # Récupérer tous les patients depuis la base de données
     query = {}
     if name:
@@ -140,7 +156,8 @@ async def view_patients(
         try:
             query["_id"] = ObjectId(patient_id)
         except:
-            raise HTTPException(status_code=400, detail="Invalid patient ID format")
+            raise HTTPException(
+                status_code=400, detail="Invalid patient ID format")
 
     patients = [
         PatientViewModel(id=str(patient["_id"]), **patient)
@@ -151,32 +168,36 @@ async def view_patients(
     )
 
 # Route pour visualiser tous les patients validés
-@app.get("/view_validates_patients", response_class=HTMLResponse)
-async def view_validates_patients( request: Request):
 
-    query={}
+
+@app.get("/view_validates_patients", response_class=HTMLResponse)
+async def view_validates_patients(request: Request):
+
+    query = {}
 
     patients = [
         PatientViewModel(id=str(patient["_id"]), **patient)
         for patient in db.patients.find(query)
     ]
     return templates.TemplateResponse(
-        "view_validates_patients.html", {"request": request, "patients": patients}
+        "view_validates_patients.html", {
+            "request": request, "patients": patients}
     )
 
 
-# Route pour visualiser tous les patients en attente de validation 
+# Route pour visualiser tous les patients en attente de validation
 @app.get("/view_waiting_patients", response_class=HTMLResponse)
-async def view_waiting_patients( request: Request):
+async def view_waiting_patients(request: Request):
 
     query = {}
 
     patients = [
         PatientViewModel(id=str(patient["_id"]), **patient)
-        for patient in db.patients.find(query).sort("scanner.prediction.confidence",-1)
+        for patient in db.patients.find(query).sort("scanner.prediction.confidence", -1)
     ]
     return templates.TemplateResponse(
-        "view_waiting_patients.html", {"request": request, "patients": patients}
+        "view_waiting_patients.html", {
+            "request": request, "patients": patients}
     )
 
 
@@ -199,7 +220,8 @@ async def edit_patient(request: Request, patient_id: str):
 @app.post("/edit_patient/{patient_id}")
 async def edit_patient_post(patient_id: str, patient: PatientUpdateModel):
     # Obtenir un dictionnaire des champs définis
-    updated_fields = {k: v for k, v in patient.model_dump().items() if v is not None}
+    updated_fields = {k: v for k,
+                      v in patient.model_dump().items() if v is not None}
     if updated_fields.get('scanner'):
         scanner_fields = updated_fields['scanner'].dict()
         for key, value in scanner_fields.items():
@@ -207,7 +229,8 @@ async def edit_patient_post(patient_id: str, patient: PatientUpdateModel):
         del updated_fields['scanner']
 
     # Mettre à jour uniquement les champs définis dans la base de données
-    db.patients.update_one({"_id": ObjectId(patient_id)}, {"$set": updated_fields})
+    db.patients.update_one({"_id": ObjectId(patient_id)}, {
+                           "$set": updated_fields})
 
     return RedirectResponse(url="/view_patients")
 
@@ -223,7 +246,8 @@ async def search_patient(patient_id: Optional[str] = None, name: Optional[str] =
         try:
             query["_id"] = ObjectId(patient_id)
         except:
-            raise HTTPException(status_code=400, detail="Invalid patient ID format")
+            raise HTTPException(
+                status_code=400, detail="Invalid patient ID format")
     elif name:
         query["name"] = {"$regex": name, "$options": "i"}
 
@@ -261,7 +285,21 @@ async def predict_patient(request: Request, patient_id: str):
                 }}
             )
             return HTMLResponse(
-                content=f"<script>alert('Prediction successfull');</script><meta http-equiv='refresh' content='0;url=/full_view_patient/{patient_id}' />"
+                content=f"""
+                <html>
+                    <head>
+                        <title>Prediction Success</title>
+                        <meta http-equiv='refresh' content='3;url=/full_view_patient/{patient_id}' />
+                    </head>
+                    <body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+                        <div style="text-align: center;">
+                            <h1>Prediction Successful</h1>
+                            <p>The prediction has been processed successfully.</p>
+                            <p>Redirecting to patient's full view...</p>
+                        </div>
+                    </body>
+                </html>
+                """
             )
         else:
             raise HTTPException(
@@ -269,14 +307,18 @@ async def predict_patient(request: Request, patient_id: str):
                 detail="Prediction failed. Please check if the image exists.",
             )
     else:
-        raise HTTPException(status_code=500, detail="Prediction request failed.")
+        raise HTTPException(
+            status_code=500, detail="Prediction request failed.")
 
 # Route pour faire le check de la prediction
+
+
 @app.get("/check_predict", response_class=HTMLResponse)
 def check_predict(request: Request):
     return templates.TemplateResponse("view_full_patient.html", {"request": request})
 
 # Route pour faire le check de la prediction
+
 
 @app.post("/check_predict_post/{patient_id}")
 async def check_predict_post(patient_id: str, patient: PredictionModel):
@@ -302,7 +344,6 @@ async def check_predict_post(patient_id: str, patient: PredictionModel):
                 }}
             )
 
-
         # Return the page
         return RedirectResponse(url="/view_patients")
     except Exception as e:
@@ -325,7 +366,9 @@ def trigger_prediction(image_data: str):
         print(f"Error: {e}")
         return None
 
-# Route pour voir le feedback des erreurs 
+# Route pour voir le feedback des erreurs
+
+
 @app.post("/feed_back")
 async def feed_back(request: Request):
     data = await request.json()

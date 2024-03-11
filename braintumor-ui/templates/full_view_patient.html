@@ -46,7 +46,7 @@ printButton %}
       {% if patient.scanner and patient.scanner.scanner_img %}
       <tr>
         <td>Scanner File Name</td>
-        <td id = 'scannerName'>{{ patient.scanner.scanner_name }}</td>
+        <td id="scannerName">{{ patient.scanner.scanner_name }}</td>
       </tr>
       <tr>
         <td>Scanner Image</td>
@@ -71,7 +71,7 @@ printButton %}
       </tr>
       <tr>
         <th>Label</th>
-        <td id = 'AI_predict'>{{ patient.scanner.prediction.AI_predict }}</td>
+        <td id="AI_predict">{{ patient.scanner.prediction.AI_predict }}</td>
       </tr>
       <tr>
         <th>Confidence</th>
@@ -114,62 +114,104 @@ printButton %}
     </table>
 
     <script>
-      const submitCheck = document.getElementById("checkBtn");
-      submitCheck.addEventListener("click", () => {
-        const predict_check = document.getElementById("predict_check").value;
-        const patient_id = document.getElementById("patientId").dataset.value;
-        const predict_check_date = new Date();
-        const scanner_name = document.getElementById("scannerName").innerText;
-        const AI_predict = document.getElementById("AI_predict").innerText;
-        const comment = document.getElementById("comment").value;
+      document.addEventListener("DOMContentLoaded", function () {
+        const submitCheck = document.getElementById("checkBtn");
+        submitCheck.addEventListener("click", function () {
+          const predictCheckSelect = document.getElementById("predict_check");
+          const predict_check = predictCheckSelect.value;
+          const patientId = document.getElementById("patientId").dataset.value;
+          const scannerName = document.getElementById("scannerName").innerText;
+          const AI_predict = document.getElementById("AI_predict").innerText;
+          const comment = document.getElementById("comment").value;
 
-        let data = {'patient_id': patient_id, 'scanner':scanner_name, 'prediction':AI_predict, 'expert_opinion':predict_check};
-        console.log(data);
+          let data = {
+            patient_id: patientId,
+            scanner: scannerName,
+            prediction: AI_predict,
+            expert_opinion: predict_check,
+          };
+          console.log(data);
 
-        // Effectuer une requête vers l'endpoint de feedback
-        if (predict_check === "No") {
-          fetch("/feed_back", {
+          if (predict_check === "No") {
+            fetch("/feed_back", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+          }
+
+          if (predict_check === "No" && comment.trim() === "") {
+            alert("Please provide a comment for disagreement.");
+            return;
+          }
+
+          fetch(`/check_predict_post/${patientId}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify({ predict_check, comment }),
           })
-        }
-  
-        if (predict_check === "no" && comment.trim() === "") {
-          alert("Please provide a comment for disagreement.");
-          return;
-        }
-        
-        // Effectuer une requête vers l'endpoint de modification du patient
-        fetch(`/check_predict_post/${patient_id}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ predict_check, predict_check_date, comment }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            // Rediriger vers la vue des patients après l'édition
-            window.location.href = "/view_patients";
-          })
-          .catch((error) => console.error("Error:", error));
+            .then((response) => response.json())
+            .then((data) => {
+              window.location.href = "/view_patients";
+              if (predict_check === "No" && comment.trim() !== "") {
+                const patientName =
+                  document.getElementById("patientId").innerText;
+                sendEmail(patientId, patientName, comment);
+              }
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+
+        const predictCheckSelect = document.getElementById("predict_check");
+        predictCheckSelect.addEventListener("change", function () {
+          const selectedOption = predictCheckSelect.value;
+          const commentBox = document.getElementById("commentBox");
+          if (selectedOption === "No") {
+            commentBox.style.display = "table-row";
+          } else {
+            commentBox.style.display = "none";
+          }
+        });
       });
 
-      // Show or hide the comment box based on user selection
-      const predictCheckSelect = document.getElementById("predict_check");
-      predictCheckSelect.addEventListener("change", () => {
-        const selectedOption = predictCheckSelect.value;
-        const commentBox = document.getElementById("commentBox");
-        if (selectedOption === "no") {
-          commentBox.style.display = "table-row";
-        } else {
-          commentBox.style.display = "none";
-        }
-      });
+      // function sendEmail(patientId, patientName, comment) {
+      //   const emailJsServiceId = "service_rynudlj";
+      //   const emailJsUserId = "XVAkyIul_MV_Z6l0GCDXw";
+      //   const emailJsTemplateId = "template_azas53s";
+      //   const recipientEmail = "devia.ramdani.lokman@gmail.com";
+
+      //   const formData = new FormData();
+      //   formData.append("service_id", emailJsServiceId);
+      //   formData.append("template_id", emailJsTemplateId);
+      //   formData.append("user_id", emailJsUserId);
+      //   formData.append("to_email", recipientEmail);
+      //   formData.append("patient_id", patientId);
+      //   formData.append("patient_name", patientName);
+      //   formData.append("comment", comment);
+
+      //   fetch("https://api.emailjs.com/api/v1.0/email/send-form", {
+      //     method: "POST",
+      //     body: formData,
+      //   })
+      //     .then((response) => {
+      //       if (response.ok) {
+      //         alert("Your email is sent!");
+      //       } else {
+      //         return response.text().then((text) => {
+      //           throw new Error(text);
+      //         });
+      //       }
+      //     })
+      //     .catch((error) => {
+      //       alert("Oops... " + error.message);
+      //     });
+      }
     </script>
+
     {{ printButton() }} {{ footer() }}
   </body>
 </html>
