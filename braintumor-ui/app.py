@@ -27,6 +27,7 @@ db = client["braintumor"]
 class PredictionModel(BaseModel):
     AI_predict: Optional[str] = None
     confidence: Optional[float] = None
+    raw_confidence: Optional[float] = None
     prediction_date: Optional[str] = None
     predict_check: Optional[str] = None
     predict_check_date: Optional[str] = None
@@ -257,6 +258,7 @@ async def predict_patient(request: Request, patient_id: str):
                 {"$set": {
                     "scanner.prediction.AI_predict": 'Tumor' if prediction_result["AI_predict"] == "yes" else 'No tumor',
                     "scanner.prediction.confidence": (1 - prediction_result["confidence"])*100 if prediction_result["AI_predict"] == "no" else prediction_result["confidence"]*100,
+                    "scanner.prediction.raw_confidence": prediction_result["confidence"],
                     "scanner.prediction.prediction_date": prediction_result["prediction_date"]
                 }}
             )
