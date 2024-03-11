@@ -39,7 +39,11 @@
 
       <tbody>
         {% for patient in patients %}  
-        {% if patient.scanner.prediction.AI_predict=="no" and patient.scanner.prediction.predict_check == "yes" %}
+        {% if patient.scanner and
+          patient.scanner.prediction and
+          ((patient.scanner.prediction.AI_predict=="no" and patient.scanner.prediction.predict_check == "yes" %) or
+          ( patient.scanner.prediction.AI_predict=="yes" and patient.scanner.prediction.predict_check == "no" %) )
+        }
         <tr>
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>

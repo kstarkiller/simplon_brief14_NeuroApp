@@ -137,8 +137,6 @@ def feedback(feedback_data: Feedback):
             print(f"{key} : {value}")
     print('\n')
 
-@app.post("/feed_back")
-
 
 
 # Run the API with uvicorn
