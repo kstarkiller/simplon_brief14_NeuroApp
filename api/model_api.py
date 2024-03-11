@@ -26,9 +26,9 @@ mlflow.set_tracking_uri("http://127.0.0.1:5000")
 model = mlflow.pyfunc.load_model(MLFLOW_RUN)
 
 # Load model save like a keras 
-# import tensorflow as tf
-# from tensorflow import keras
-# model=tf.keras.models.load_model("model_neuro_2")
+
+# from keras import load_model
+# model=load_model("tumor_detection_model/brain_tumor_detector")
 
 
 # Define function normalize :
@@ -136,6 +136,9 @@ def feedback(feedback_data: Feedback):
         else :
             print(f"{key} : {value}")
     print('\n')
+
+@app.post("/feed_back")
+
 
 
 # Run the API with uvicorn

@@ -36,9 +36,11 @@
       </thead>
 
       <tbody>
+
         {% for patient in patients %}
         <!-- If the patient has a prediction but no validation -->
         {% if patient.scanner.scanner_img and patient.scanner.prediction.AI_predict and not patient.scanner.prediction.predict_check %}
+
         <tr>
           <td>{{ patient.name }}</td>
           <td>{{ patient.age }}</td>
