@@ -48,7 +48,7 @@
           <td>{{ patient.age }}</td>
           <td>{{ patient.gender }}</td>
           <td>{{ patient.scanner.prediction.AI_predict }}</td>
-          <td>{{ patient.scanner.prediction.confidence }}</td>
+          <td>{{(1- patient.scanner.prediction.confidence)*100 }}%</td>
           <td>Tumor</td>
           <td>{{ patient.scanner.prediction.predict_check_date }}</td>
 
