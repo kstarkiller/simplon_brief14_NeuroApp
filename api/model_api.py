@@ -15,6 +15,10 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from hidden import MONGO_URI, MLFLOW_RUN
 
+# Retrieve MLFLOW_RUN and MONGO_URI from the docker environment
+# MLFLOW_RUN = os.environ.get("MLFLOW_RUN")
+# MONGO_URI = os.environ.get("MONGO_URI")
+
 app = FastAPI()
 
 # Load the ML model
