@@ -47,7 +47,7 @@
           <td>{{ patient.gender }}</td>
           <td>Yes</td>
           <td>{{ patient.scanner.prediction.AI_predict }}</td>
-          <td>{{ 100*patient.scanner.prediction.confidence if patient.scanner.prediction.confidence>0.5 }}%</td>
+          <td>{{ patient.scanner.prediction.confidence if patient.scanner.prediction.confidence>0.5 }}%</td>
           <td>Waiting validation</td>
           <td>
             <a href="{{ url_for('edit_patient', patient_id=patient.id) }}"

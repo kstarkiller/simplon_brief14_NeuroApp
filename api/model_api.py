@@ -9,20 +9,22 @@ from bson import ObjectId
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
+import requests
 
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from hidden import MONGO_URI, MLFLOW_RUN
+from hidden import MONGO_URI, MLFLOW_RUN, MLFLOW_URI
 
 # Retrieve MLFLOW_RUN and MONGO_URI from the docker environment
 # MLFLOW_RUN = os.environ.get("MLFLOW_RUN")
 # MONGO_URI = os.environ.get("MONGO_URI")
+# MLFLOW_URI = os.environ.get("MLFLOW_URI")
 
 app = FastAPI()
 
 # Load the ML model
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow.set_tracking_uri(MLFLOW_URI)
 model = mlflow.pyfunc.load_model(MLFLOW_RUN)
 
 # Load model save like a keras 

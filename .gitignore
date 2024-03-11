@@ -12,6 +12,7 @@ mlartifacts/
 # Docker
 Dockerfile
 .dockerignore
+api/requirements.txt
 
 # CSV
 *.csv
